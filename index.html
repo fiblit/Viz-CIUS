@@ -4,12 +4,22 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>FBI: UCR: CIUS</title>	
-        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <!-- https://github.com/d3/d3 -->
+        <script src="https://d3js.org/d3.v3.js"></script>
+            <!-- for d3.geo.path to work we need v3, however I read that
+            we can use v4 if we change it to geoPath. Didn't bother yet -->'
+        <!-- https://github.com/d3/d3-geo -->
+        <script src="https://d3js.org/d3-array.v1.min.js"></script>
+        <script src="https://d3js.org/d3-geo.v1.min.js"></script>
+        <script>
+            var projection = d3.geoAlbers(),
+                path = d3.geoPath(projection);
+        </script>
     </head>
     <body data-gr-c-s-loaded="true">
         <script type="text/javascript">
-        // Your D3 code will go here
-
+        
+    /*
         //create SVG element  
         var chart1 = d3
             .select("body")
@@ -25,7 +35,74 @@
             .attr("width", 100)
             .attr("height",100)
             .style("fill","gray");
+*/
+        
+    //note:
+    /*
+    // load data and draw a line graph
+		d3.csv("population.csv", function(data) {
+			var parsedData = data.map(function(d) {
+				return [ +d['Year'], +d['Population'], +d['Annual population change'], +d['Annual growth rate (%)'] ];
+			});
+			
+			console.log(parsedData); // uncomment to check the parsedData
+			drawWorldPopulation(parsedData);
+			drawBarChart(parsedData, 2, 2, 2, "Annual Population Change");
+			drawBarChart(parsedData, 3, 3, 3, "Annual Growth Rate");
+		});
+    */
 
+        //source
+        // https://strongriley.github.io/d3/ex/choropleth.html
+        var data; // loaded asynchronously later.
+
+        var path = d3.geo
+            .path();
+
+        var svg = d3
+            .select("#chart")
+            .append("svg:svg");
+
+        var counties = svg
+            .append("svg:g")
+            .attr("id", "counties")
+            .attr("class", "Blues");
+
+        var states = svg
+            .append("svg:g")
+            .attr("id", "states");
+
+        d3.json("./data/us-counties.json", function(json) {
+            counties
+                .selectAll("path")
+                    .data(json.features)
+                    .enter()
+                        .append("svg:path")
+                            .attr("class", data ? quantize : null)
+                            .attr("d", path);
+        });
+
+        d3.json("./data/us-states.json", function(json) {
+            states
+                .selectAll("path")
+                    .data(json.features)
+                    .enter()
+                        .append("svg:path")
+                            .attr("d", path);
+        });
+
+        d3.json("./data/unemployment.json", function(json) {
+            data = json;
+            counties
+                .selectAll("path")
+                    .attr("class", quantize);
+        });
+
+        function quantize(d) {
+            //what the hell is that ~~ operator?
+            return "q" + Math.min(8, ~~(data[d.id] * 9 / 12)) + "-9";
+        }
+        
         </script>
     </body>
 </html>
