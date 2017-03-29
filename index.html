@@ -15,6 +15,33 @@
             var projection = d3.geoAlbers(),
                 path = d3.geoPath(projection);
         </script>
+        <style>
+            svg {
+                background: #eee;
+                width: 960px;
+                height: 500px;
+            }
+
+            #counties path {
+                stroke: #fff;
+                stroke-width: .25px;
+            }
+
+            #states path {
+                fill: none;
+                stroke: #fff;
+                stroke-width: 1.5px;
+            }
+            .Blues .q0-9{fill:rgb(247,251,255)}
+            .Blues .q1-9{fill:rgb(222,235,247)}
+            .Blues .q2-9{fill:rgb(198,219,239)}
+            .Blues .q3-9{fill:rgb(158,202,225)}
+            .Blues .q4-9{fill:rgb(107,174,214)}
+            .Blues .q5-9{fill:rgb(66,146,198)}
+            .Blues .q6-9{fill:rgb(33,113,181)}
+            .Blues .q7-9{fill:rgb(8,81,156)}
+            .Blues .q8-9{fill:rgb(8,48,107)}
+        </style>
     </head>
     <body data-gr-c-s-loaded="true">
         <script type="text/javascript">
@@ -60,8 +87,10 @@
             .path();
 
         var svg = d3
-            .select("#chart")
-            .append("svg:svg");
+            .select("body")
+            .append("svg:svg")
+            .attr("width", 1200)
+            .attr("height", 800);
 
         var counties = svg
             .append("svg:g")
