@@ -18,12 +18,17 @@
         <style>
             svg {
                 background: #eee;
-                width: 960px;
-                height: 500px;
+                width: 1200px;
+                height: 800px;
+            }
+
+            .overlay {
+                fill: none;
+                pointer-events: all;
             }
 
             #counties path {
-                stroke: #fff;
+                stroke: #000;
                 stroke-width: .25px;
             }
 
@@ -46,42 +51,14 @@
     <body data-gr-c-s-loaded="true">
         <script type="text/javascript">
         
-    /*
-        //create SVG element  
-        var chart1 = d3
-            .select("body")
-            .append("svg")
-            .attr("width", 600)
-            .attr("height", 400);
-
-        //add a rectangle
-        chart1
-            .append("rect")
-            .attr("x", 25)
-            .attr("y", 150)
-            .attr("width", 100)
-            .attr("height",100)
-            .style("fill","gray");
-*/
-        
-    //note:
-    /*
-    // load data and draw a line graph
-		d3.csv("population.csv", function(data) {
-			var parsedData = data.map(function(d) {
-				return [ +d['Year'], +d['Population'], +d['Annual population change'], +d['Annual growth rate (%)'] ];
-			});
-			
-			console.log(parsedData); // uncomment to check the parsedData
-			drawWorldPopulation(parsedData);
-			drawBarChart(parsedData, 2, 2, 2, "Annual Population Change");
-			drawBarChart(parsedData, 3, 3, 3, "Annual Growth Rate");
-		});
-    */
 
         //source
         // https://strongriley.github.io/d3/ex/choropleth.html
         var data; // loaded asynchronously later.
+
+        var margin = {top: -5, right: -5, bottom: -5, left: -5},
+            width = 1200 - margin.left - margin.right,
+            height = 800 - margin.top - margin.bottom;
 
         var path = d3.geo
             .path();
@@ -89,8 +66,16 @@
         var svg = d3
             .select("body")
             .append("svg:svg")
-            .attr("width", 1200)
-            .attr("height", 800);
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .call(d3.behavior.zoom().scaleExtent([1, 10]).on("zoom", zoom))
+            .append("g");
+
+        svg.append("rect")
+            .attr("class", "overlay")
+            .attr("width", width)
+            .attr("height", height);
 
         var counties = svg
             .append("svg:g")
@@ -100,7 +85,7 @@
         var states = svg
             .append("svg:g")
             .attr("id", "states");
-
+/*
         d3.json("./data/us-counties.json", function(json) {
             counties
                 .selectAll("path")
@@ -126,12 +111,27 @@
                 .selectAll("path")
                     .attr("class", quantize);
         });
+*/
 
+        d3.json("./data/tl_2016_27_cousub.json", function(json) {
+            counties
+                .selectAll("path")
+                    .data(json.features)
+                    .enter()
+                        .append("svg:path")
+                            .attr("d", path);
+        });
+
+        //this maps counties to the unemployment data
         function quantize(d) {
             //what the hell is that ~~ operator?
             return "q" + Math.min(8, ~~(data[d.id] * 9 / 12)) + "-9";
         }
-        
+
+        function zoom() {
+            svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+        }
+
         </script>
     </body>
 </html>
