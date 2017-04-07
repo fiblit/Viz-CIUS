@@ -32,11 +32,13 @@
                 stroke-width: .25px;
             }
 
+
             #states path {
                 fill: none;
                 stroke: #fff;
-                stroke-width: 1.5px;
+                stroke-width: .25px;
             }
+
             .Blues .q0-9{fill:rgb(247,251,255)}
             .Blues .q1-9{fill:rgb(222,235,247)}
             .Blues .q2-9{fill:rgb(198,219,239)}
@@ -45,12 +47,11 @@
             .Blues .q5-9{fill:rgb(66,146,198)}
             .Blues .q6-9{fill:rgb(33,113,181)}
             .Blues .q7-9{fill:rgb(8,81,156)}
-            .Blues .q8-9{fill:rgb(8,48,107)}
+            .Blues .q8-9{fill:rgb(255,48,107)}
         </style>
     </head>
     <body data-gr-c-s-loaded="true">
         <script type="text/javascript">
-        
 
         //source
         // https://strongriley.github.io/d3/ex/choropleth.html
@@ -85,7 +86,7 @@
         var states = svg
             .append("svg:g")
             .attr("id", "states");
-/*
+
         d3.json("./data/us-counties.json", function(json) {
             counties
                 .selectAll("path")
@@ -111,9 +112,9 @@
                 .selectAll("path")
                     .attr("class", quantize);
         });
-*/
 
-        d3.json("./data/tl_2016_27_cousub.json", function(json) {
+
+        d3.json("./data/us-counties.json", function(json) {
             counties
                 .selectAll("path")
                     .data(json.features)
@@ -125,7 +126,12 @@
         //this maps counties to the unemployment data
         function quantize(d) {
             //what the hell is that ~~ operator?
-            return "q" + Math.min(8, ~~(data[d.id] * 9 / 12)) + "-9";
+            if (data[d.id] > 30) {
+                console.log(d.id+" "+ data[d.id]);
+                return "q8-9";
+            }
+            else
+                return "q" + Math.min(8, ~~(data[d.id] * 1 / 12)) + "-9";
         }
 
         function zoom() {
