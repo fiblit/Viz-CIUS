@@ -87,11 +87,13 @@
             .append("svg:g")
             .attr("id", "states");
 
-        d3.csv("./data/FIPS_national.txt", function(data) {
-            data.forEach(function(d) {
+        FIPS;
+        d3.csv("./data/FIPS_national.txt", function(csv) {
+            csv.forEach(function(d) {
                 d.id = d.id + d.subid;
             });
-            console.log(data[0]);
+            FIPS = csv;
+            console.log(FIPS[0]);
         });
 
         d3.json("./data/us-counties.json", function(json) {
@@ -139,6 +141,42 @@
             }
             else
                 return "q" + Math.min(8, ~~(data[d.id] * 1 / 12)) + "-9";
+        }
+
+        function state_county_to_FIPS_id(state,county) {
+            function state_to_abbrev(state) {
+                state = state.toUpperCase().split(" ");
+                var mapping = {
+                    "ALABAMA":"AL","ALASKA":"AK","ARIZONA":"AZ","ARKANSAS":"AR","CALIFORNIA":"CA",
+                    "COLORADO":"CO","CONNETICUT":"CT","DELEWARE":"DE","FLORIDA":"FL","GEORGIA":"GA",
+                    "HAWAII":"HI","IDAHO":"ID","ILLINOIS":"IL","INDIANA":"IN","IOWA":"IA",
+                    "KANSAS":"KS","KENTUCKY":"KY","LOUSIANA":"LA","MAINE":"ME","MARYLAND":"MD",
+                    "MASSACHUSETTS":"MA","MICHIGAN":"MI","MINNESOTA":"MN","MISSISIPI":"MI","MISSOURI":"MO",
+                    "MONTANA":"MT","NEBRASKA":"NE","NEVADA":"NV",/*NEW HAMPSHIRE,NEW JERSEY,*/
+                    /*NEW MEXICO,NEW YORK,NORTH CAROLINA,NORTH DAKOTA*/"OHIO":"OH",
+                    "OKLAHOMA":"OK","OREGON":"OR","PENNSYLVANIA":"PA","RHODE":/*ISLAND*/"RI",/*SOUTH CAROLINA,*/
+                    /*SOUTH DAKOTA,*/"TENNESSEE":"TN","TEXAS":"TX","UTAH":"UT","VERMONT":"VT",
+                    "VIRGINIA":"VA","WASHINGTON":"WA","WEST":/*VIRGINIA*/"WV","WISCONSIN":"WI","WYOMING":"WY"
+                };
+                if (state[0] == "NORTH") {
+                    var mappingSub = {"CAROLINA":"NC", "DAKOTA":"ND"};
+                    return mappingSub[state[1]];
+                }
+                else if (state[0] == "SOUTH") {
+                    var mappingSub = {"CAROLINA":"SC", "DAKOTA":"SD"};
+                    return mappingSub[state[1]];
+                }
+                else if (state[0] == "NEW") {
+                    var mappingSub = {"YORK":"NY", "HAMPSHIRE":"NH","MEXICO":"NM","JERSEY":"NJ"};
+                    return mappingSub[state[1]];
+                }
+                else {
+                    return mapping[state[0]];
+                }
+            }
+
+            var abbrev = state_to_abbrev(state);
+
         }
 
         function zoom() {
