@@ -99,7 +99,8 @@
                     .data(json.features)
                     .enter()
                         .append("svg:path")
-                            .attr("class", data ? quantize : null)
+                            /* apparently this is asynchronous */
+                            .attr("class", data ? labelmap : null)
                             .attr("d", path);
         });
 
@@ -113,22 +114,21 @@
         });
 
         d3.csv("./data/Tb_10_Offenses_by_Counties_2015.csv", function(csv) {
-            data = csv;
-            //csv.forEach(function(d) {//this doesn't seem right :p
-            counties
-                .selectAll("path")
-                    .attr("class", labelmap);
-            //})
+            data = {};
+            csv.forEach(function(d) {//this doesn't seem right :p
+                d.FIPS = state_county_to_FIPS_id(d.State, d.County);
+                data[d.FIPS] = d;
+            })
         });
 
-/*
+        /*
         d3.json("./data/unemployment.json", function(json) {
             data = json;
             counties
                 .selectAll("path")
                     .attr("class", quantize);
-        });
-*/      
+        });*/
+
 
         d3.json("./data/us-counties.json", function(json) {
             counties
@@ -140,11 +140,16 @@
         });
 
         function labelmap(d) {
-            console.log(d);
-            var fipsid = state_county_to_FIPS_id(d.State, d.County);
-            console.log(fipsid);
-            console.log(Math.min(8, ~~(d.Violentcrime)));
-            return "q" + Math.min(8, ~~(d.Violentcrime)) + "-9";
+            console.log(d.id);
+            console.log(data[d.id]);
+            console.log(data[d.id] == null);
+            console.log(data[d.id] != null);
+            if (data[d.id] == null)
+                return "q0-9";
+            else if (data[d.id] != null && data[d.id].Violentcrime == 0)
+                return "q8-9";
+            else
+                return "q3-9";
         }
 
         //this maps counties to the unemployment data
@@ -152,11 +157,10 @@
             console.log(d);
             //what the hell is that ~~ operator?
             if (data[d.id] > 30) {
-                console.log(d.id+" "+ data[d.id]);
                 return "q8-9";
             }
             else
-                return "q" + Math.min(8, ~~(data[d.id] * 1 / 12)) + "-9";
+                return "q" + Math.min(8, ~~(data[d.id] * 3 / 12)) + "-9";
         }
 
         function state_county_to_FIPS_id(state,county) {
