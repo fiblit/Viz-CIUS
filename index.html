@@ -112,13 +112,23 @@
                             .attr("d", path);
         });
 
+        d3.csv("./data/Tb_10_Offenses_by_Counties_2015.csv", function(csv) {
+            data = csv;
+            //csv.forEach(function(d) {//this doesn't seem right :p
+            counties
+                .selectAll("path")
+                    .attr("class", labelmap);
+            //})
+        });
+
+/*
         d3.json("./data/unemployment.json", function(json) {
             data = json;
             counties
                 .selectAll("path")
                     .attr("class", quantize);
         });
-
+*/      
 
         d3.json("./data/us-counties.json", function(json) {
             counties
@@ -129,8 +139,17 @@
                             .attr("d", path);
         });
 
+        function labelmap(d) {
+            console.log(d);
+            var fipsid = state_county_to_FIPS_id(d.State, d.County);
+            console.log(fipsid);
+            console.log(Math.min(8, ~~(d.Violentcrime)));
+            return "q" + Math.min(8, ~~(d.Violentcrime)) + "-9";
+        }
+
         //this maps counties to the unemployment data
         function quantize(d) {
+            console.log(d);
             //what the hell is that ~~ operator?
             if (data[d.id] > 30) {
                 console.log(d.id+" "+ data[d.id]);
@@ -173,11 +192,14 @@
             }
 
             var abbrev = state_to_abbrev(state);
+            var fipsid;
             FIPS.forEach(function(d) {
-                if(d.state == abbrev && d.name.split(" ")[0].toUpperCase() == county.toUpperCase()) {
-                    return d.id + d.subid;
+                var properName = d.name.substring(0, county.length);//deals with multi-word counties
+                if(d.state == abbrev && properName.toUpperCase() == county.toUpperCase()) {
+                    fipsid = d.id + d.subid;
                 }
             });
+            return fipsid;
         }
 
         function zoom() {
