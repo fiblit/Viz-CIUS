@@ -89,9 +89,6 @@
 
         FIPS;
         d3.csv("./data/FIPS_national.txt", function(csv) {
-            csv.forEach(function(d) {
-                d.id = d.id + d.subid;
-            });
             FIPS = csv;
             console.log(FIPS[0]);
         });
@@ -176,7 +173,11 @@
             }
 
             var abbrev = state_to_abbrev(state);
-
+            FIPS.forEach(function(d) {
+                if(d.state == abbrev && d.name.split(" ")[0].toUpperCase() == county.toUpperCase()) {
+                    return d.id + d.subid;
+                }
+            });
         }
 
         function zoom() {
