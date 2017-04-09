@@ -90,7 +90,6 @@
         var FIPS;
         d3.csv("./data/FIPS_national.txt", function(csv) {
             FIPS = csv;
-            console.log(FIPS[0]);
         });
 
         d3.json("./data/us-counties.json", function(json) {
@@ -119,16 +118,8 @@
                 d.FIPS = state_county_to_FIPS_id(d.State, d.County);
                 data[d.FIPS] = d;
             })
+            console.log(data);
         });
-
-        /*
-        d3.json("./data/unemployment.json", function(json) {
-            data = json;
-            counties
-                .selectAll("path")
-                    .attr("class", quantize);
-        });*/
-
 
         d3.json("./data/us-counties.json", function(json) {
             counties
@@ -140,13 +131,10 @@
         });
 
         function labelmap(d) {
-            console.log(d.id);
-            console.log(data[d.id]);
-            console.log(data[d.id] == null);
-            console.log(data[d.id] != null);
             if (data[d.id] == null)
                 return "q0-9";
-            else if (data[d.id] != null && data[d.id].Violentcrime == 0)
+                            /*change the Violentcrime if you don't see red*/
+            else if (data[d.id] != null && data[d.id]['Violentcrime'] == 0)
                 return "q8-9";
             else
                 return "q3-9";
@@ -165,7 +153,7 @@
 
         function state_county_to_FIPS_id(state,county) {
             function state_to_abbrev(state) {
-                state = state.toUpperCase().split(" ");
+                state = state.toUpperCase().split("-")[0].split(" ");
                 var mapping = {
                     "ALABAMA":"AL","ALASKA":"AK","ARIZONA":"AZ","ARKANSAS":"AR","CALIFORNIA":"CA",
                     "COLORADO":"CO","CONNETICUT":"CT","DELEWARE":"DE","FLORIDA":"FL","GEORGIA":"GA",
