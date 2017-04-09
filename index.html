@@ -87,6 +87,13 @@
             .append("svg:g")
             .attr("id", "states");
 
+        d3.csv("./data/FIPS_national.txt", function(data) {
+            data.forEach(function(d) {
+                d.id = d.id + d.subid;
+            });
+            console.log(data[0]);
+        });
+
         d3.json("./data/us-counties.json", function(json) {
             counties
                 .selectAll("path")
