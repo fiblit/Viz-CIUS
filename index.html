@@ -87,7 +87,7 @@
             .append("svg:g")
             .attr("id", "states");
 
-        FIPS;
+        var FIPS;
         d3.csv("./data/FIPS_national.txt", function(csv) {
             FIPS = csv;
             console.log(FIPS[0]);
