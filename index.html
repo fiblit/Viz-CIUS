@@ -121,15 +121,6 @@
             console.log(data);
         });
 
-        d3.json("./data/us-counties.json", function(json) {
-            counties
-                .selectAll("path")
-                    .data(json.features)
-                    .enter()
-                        .append("svg:path")
-                            .attr("d", path);
-        });
-
         function labelmap(d) {
             if (data[d.id] == null)
                 return "q0-9";
