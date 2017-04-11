@@ -131,17 +131,6 @@
                 return "q3-9";
         }
 
-        //this maps counties to the unemployment data
-        function quantize(d) {
-            console.log(d);
-            //what the hell is that ~~ operator?
-            if (data[d.id] > 30) {
-                return "q8-9";
-            }
-            else
-                return "q" + Math.min(8, ~~(data[d.id] * 3 / 12)) + "-9";
-        }
-
         function state_county_to_FIPS_id(state,county) {
             function state_to_abbrev(state) {
                 state = state.toUpperCase().split("-")[0].split(" ");
