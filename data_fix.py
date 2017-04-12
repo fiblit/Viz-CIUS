@@ -25,9 +25,9 @@ def fix_data(src):
 def update_row(row,filedata):
     row = row[:-1]
     #row = remove_nums(row)
-    row = agg_vc(row)
+    #row = agg_vc(row)
     #row = fix_dash(row)
-    #row = add_fips(row,filedata)
+    row = add_fips(row,filedata)
     return row
 
 def add_fips(row,data):
