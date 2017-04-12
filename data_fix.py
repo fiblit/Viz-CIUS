@@ -5,7 +5,7 @@ def fix_data(src):
     old = open(src)
     fips = open("./data/FIPS_national.txt")
     csv = ""
-    i = 0;
+    i = 0
     lines = old.readlines()
     fipsids= fips.readlines()
     old.close()
@@ -82,7 +82,7 @@ states = {"ALABAMA":"AL","ALASKA":"AK","ARIZONA":"AZ","ARKANSAS":"AR","CALIFORNI
                     "KANSAS":"KS","KENTUCKY":"KY","LOUISIANA":"LA","MAINE":"ME","MARYLAND":"MD",
                     "MASSACHUSETTS":"MA","MICHIGAN":"MI","MINNESOTA":"MN","MISSISSIPPI":"MS","MISSOURI":"MO",
                     "MONTANA":"MT","NEBRASKA":"NE","NEVADA":"NV","NEW HAMPSHIRE":"NH","NEW JERSEY":"NJ",
-                    "NEW MEXICO":"NM","NEW YORK":"NY","NORTH CAROLINA":"NC","NORTH DAKOTA":"NC","OHIO":"OH",
+                    "NEW MEXICO":"NM","NEW YORK":"NY","NORTH CAROLINA":"NC","NORTH DAKOTA":"ND","OHIO":"OH",
                     "OKLAHOMA":"OK","OREGON":"OR","PENNSYLVANIA":"PA","RHODE ISLAND":"RI","SOUTH CAROLINA":"SC",
                     "SOUTH DAKOTA":"SD","TENNESSEE":"TN","TEXAS":"TX","UTAH":"UT","VERMONT":"VT",
                     "VIRGINIA":"VA","WASHINGTON":"WA","WEST VIRGINIA": "WV","WISCONSIN":"WI","WYOMING":"WY"}
