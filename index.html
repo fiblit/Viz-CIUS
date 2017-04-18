@@ -18,8 +18,8 @@
         <style>
             svg {
                 background: #eee;
-                width: 1200px;
-                height: 800px;
+                width: 1000px;
+                height: 600px;
             }
 
             .overlay {
@@ -55,11 +55,22 @@
 
         //source
         // https://strongriley.github.io/d3/ex/choropleth.html
-        var data; // loaded asynchronously later.
+        var data = ["./data/Tb_10_Offenses_by_Counties_2006.csv",
+            "./data/Tb_10_Offenses_by_Counties_2007.csv",
+            "./data/Tb_10_Offenses_by_Counties_2008.csv",
+            "./data/Tb_10_Offenses_by_Counties_2009.csv",
+            "./data/Tb_10_Offenses_by_Counties_2010.csv",
+            "./data/Tb_10_Offenses_by_Counties_2011.csv",
+            "./data/Tb_10_Offenses_by_Counties_2012.csv",
+            "./data/Tb_10_Offenses_by_Counties_2013.csv",
+            "./data/Tb_10_Offenses_by_Counties_2014.csv",
+            "./data/Tb_10_Offenses_by_Counties_2015.csv"]; // loaded asynchronously later.
+        var set = 0;
+        var datasets = [{},{},{},{},{},{},{},{},{},{}];
 
         var margin = {top: -5, right: -5, bottom: -5, left: -5},
-            width = 1200 - margin.left - margin.right,
-            height = 800 - margin.top - margin.bottom;
+            width = 1000 - margin.left - margin.right,
+            height = 600 - margin.top - margin.bottom;
 
         var path = d3.geo
             .path();
@@ -72,6 +83,12 @@
             .append("g")
                 .call(d3.behavior.zoom().scaleExtent([1, 10]).on("zoom", zoom))
             .append("g");
+
+        var map = d3.select('svg g');
+        map.on('click',function() {
+            console.log('clicked');
+            nextMap();
+        });
 
         svg.append("rect")
             .attr("class", "overlay")
@@ -99,7 +116,7 @@
                     .enter()
                         .append("svg:path")
                             /* apparently this is asynchronous */
-                            .attr("class", data ? labelmap : null)
+                            .attr("class", datasets[set] ? labelmap : null)
                             .attr("d", path);
         });
 
@@ -112,87 +129,61 @@
                             .attr("d", path);
         });
 
-        d3.csv("./data/Tb_10_Offenses_by_Counties_2014.csv", function(csv) {
-            data = {};
-            csv.forEach(function(d) {//this doesn't seem right :p
-                d.FIPS = d.idsubid
-                //state_county_to_FIPS_id(d.State, d.County);
-                if (data[d.FIPS] == null){
-                	data[d.FIPS] = d;
-                }
-                else{
-                	data[d.FIPS] += d;	//for adding police departments
-                }
-            })
-           // console.log(data);
-        });
+        for (var i = 0; i < data.length; i++){
+            var iter = function (i){
+                d3.csv(data[i], function(csv) {
+                    csv.forEach(function(d) {   // doing this asynch?
+                        if (datasets[i][d.idsubid] == null){
+                            datasets[i][d.idsubid] = d;
+                        }
+                        else{ //for adding police departments
+                            datasets[i][d.idsubid]["Violent crime"] += d["Violent crime"]; 
+                            datasets[i][d.idsubid]["Murder and nonnegligent manslaughter"] += d["Murder and nonnegligent manslaughter"];
+                            datasets[i][d.idsubid]["Rape(revised definition)1"] += d["Rape(revised definition)1"];
+                            datasets[i][d.idsubid]["Rape(legacy definition)2"] += d["Rape(legacy definition)2"];
+                            datasets[i][d.idsubid]["Robbery"] += d["Robbery"];
+                            datasets[i][d.idsubid]["Aggravated assault"] += d["Aggravated assault"];
+                            datasets[i][d.idsubid]["Property crime"] += d["Property crime"];
+                            datasets[i][d.idsubid]["Burglary"] += d["Burglary"];
+                            datasets[i][d.idsubid]["Larceny-theft"] += d["Larceny-theft"];
+                            datasets[i][d.idsubid]["Motor vehicle theft"] += d["Motor vehicle theft"];
 
+                        }
+                    });
+                    console.log(i);
+                    console.log(datasets[i]);
+                });
+            }(i);
+        }
+        //i=0;
+        // counties.selectAll("path")
+        //         .attr("class",datasets[set] ? labelmap : null)
+        //         .attr("d", path)
+        //var mytimer = setInterval(updateMap,10000);
+
+        function nextMap() {
+            counties.selectAll("path")
+                .attr("class",datasets[set] ? labelmap : null)
+                .attr("d", path)
+            set = (set+1) % 3;//datasets.length;
+        }
+        function prevMap() {
+            counties.selectAll("path")
+                .attr("class",datasets[set] ? labelmap : null)
+                .attr("d", path)
+            set = (set+datasets.length-1) % datasets.length;
+        }
         function labelmap(d) {
-            if (data[d.id] == null)
+            if (datasets[set][d.id] == null)
                 return "q0-9";
                             /*change the Violentcrime if you don't see red*/
-            else if (data[d.id]['Violent crime'] == 0)
+            else if (datasets[set][d.id]['Violent crime'] == 0)
                 return "q8-9";
             else
                 return "q3-9";
         }
 
-        // function state_county_to_FIPS_id(state,county) {
-        //     function state_to_abbrev(state) {
-        //         state = state.toUpperCase().split("-")[0].split(" ");
-        //         var mapping = {
-        //             "ALABAMA":"AL","ALASKA":"AK","ARIZONA":"AZ","ARKANSAS":"AR","CALIFORNIA":"CA",
-        //             "COLORADO":"CO","CONNECTICUT":"CT","DELEWARE":"DE","FLORIDA":"FL","GEORGIA":"GA",
-        //             "HAWAII":"HI","IDAHO":"ID","ILLINOIS":"IL","INDIANA":"IN","IOWA":"IA",
-        //             "KANSAS":"KS","KENTUCKY":"KY","LOUISIANA":"LA","MAINE":"ME","MARYLAND":"MD",
-        //             "MASSACHUSETTS":"MA","MICHIGAN":"MI","MINNESOTA":"MN","MISSISSIPPI":"MS","MISSOURI":"MO",
-        //             "MONTANA":"MT","NEBRASKA":"NE","NEVADA":"NV",/*NEW HAMPSHIRE,NEW JERSEY,*/
-        //             /*NEW MEXICO,NEW YORK,NORTH CAROLINA,NORTH DAKOTA*/"OHIO":"OH",
-        //             "OKLAHOMA":"OK","OREGON":"OR","PENNSYLVANIA":"PA","RHODE":/*ISLAND*/"RI",/*SOUTH CAROLINA,*/
-        //             /*SOUTH DAKOTA,*/"TENNESSEE":"TN","TEXAS":"TX","UTAH":"UT","VERMONT":"VT",
-        //             "VIRGINIA":"VA","WASHINGTON":"WA","WEST":/*VIRGINIA*/"WV","WISCONSIN":"WI","WYOMING":"WY"
-        //         };
-        //         if (state[0] == "NORTH") {
-        //             var mappingSub = {"CAROLINA":"NC", "DAKOTA":"ND"};
-        //             return mappingSub[state[1]];
-        //         }
-        //         else if (state[0] == "SOUTH") {
-        //             var mappingSub = {"CAROLINA":"SC", "DAKOTA":"SD"};
-        //             return mappingSub[state[1]];
-        //         }
-        //         else if (state[0] == "NEW") {
-        //             var mappingSub = {"YORK":"NY", "HAMPSHIRE":"NH","MEXICO":"NM","JERSEY":"NJ"};
-        //             return mappingSub[state[1]];
-        //         }
-        //         else {
-        //             return mapping[state[0]];
-        //         }
-        //     }
-
-        //     var abbrev = state_to_abbrev(state);
-        //     var fipsid;
-        //     FIPS.forEach(function(d) {
-        //     	var countyName = "";
-        //     	var countyWords = county.split(" ");
-        //     	if (countyWords.length > 1){
-	       //      	var i = 0;
-	       //      	while (i < countyWords.length && countyWords[i] != "County" && countyWords[i] != "Police") {
-	       //      		countyName += countyWords[i]+" ";
-	       //      		i++;
-	       //      	}
-	       //      	countyName = countyName.substring(0,countyName.length-1);
-	       //      }
-	       //      else{
-	       //      	countyName = county;
-	       //      }
-        //         var properName = d.name.substring(0, countyName.length);//deals with multi-word counties
-        //         if(d.state == abbrev && properName.toUpperCase() == countyName.toUpperCase()) {
-        //             fipsid = d.id + d.subid;
-        //         }
-        //     });
-        //     return fipsid;
-        // }
-
+        
         function zoom() {
             svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
         }

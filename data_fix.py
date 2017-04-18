@@ -46,11 +46,12 @@ def add_fips(row,data):
                     county += word+' '
                 else:
                     break
-            county = county.strip()
-            if county.upper() == record[3][:len(county)].upper():
+            county = county.replace(' ','').upper()
+            fipsC = record[3].replace(' ','').upper()
+            if county == fipsC[:len(county)]:
                 fipsid = record[1]+record[2]
                 break
-    row.append(fipsid)
+    row[-1] = fipsid
     return row
 
 def fix_dash(row):
