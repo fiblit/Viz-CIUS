@@ -51,13 +51,18 @@
     </head>
     <body data-gr-c-s-loaded="true">
         <div id="option">
-            <input name="Violentcrime_btn" 
-                type="button" 
-                value="Violent Crime" 
-                onclick="switchCategory('Violent crime')" />
-            <input name = "test" type = "button"
-            value = "test"
-            />
+            <!-- there is a way to increment this, but I don't care to look it up right now -->
+            <!-- TODO: add a tooltip "definition" with these to explain what they are -->
+            <input name="0_btn" type="button" value="Violent Crime" onclick="switchCategory(0)"/>
+            <input name="1_btn" type="button" value="Murder" onclick="switchCategory(1)"/>
+            <input name="2_btn" type="button" value="Rape (revised definition)" onclick="switchCategory(2)"/>
+            <input name="3_btn" type="button" value="Rape (legacy definition)" onclick="switchCategory(3)"/>
+            <input name="4_btn" type="button" value="Robbery" onclick="switchCategory(4)"/>
+            <input name="5_btn" type="button" value="Aggravated Assault" onclick="switchCategory(5)"/>
+            <input name="6_btn" type="button" value="Property Crime" onclick="switchCategory(6)"/>
+            <input name="7_btn" type="button" value="Burglary" onclick="switchCategory(7)"/>
+            <input name="8_btn" type="button" value="Larceny-theft" onclick="switchCategory(8)"/>
+            <input name="9_btn" type="button" value="Motor Vehicle Theft" onclick="switchCategory(9)"/>
         </div>
         <script type="text/javascript">
 
@@ -79,6 +84,19 @@
         var margin = {top: -5, right: -5, bottom: -5, left: -5},
             width = 875 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
+        var categories = [
+            "Violent crime",
+            "Murder and nonnegligent manslaughter",
+            "Rape(revised definition)1",
+            "Rape(legacy definition)2",
+            "Robbery",
+            "Aggravated assault",
+            "Property crime",
+            "Burglary",
+            "Larceny-theft",
+            "Motor vehicle theft"
+        ];
+        var category = 0;
 
         var path = d3.geo
             .path();
@@ -142,21 +160,12 @@
             var iter = function (i){
                 d3.csv(data[i], function(csv) {
                     csv.forEach(function(d) {   // doing this asynch?
-                        if (datasets[i][d.idsubid] == null){
+                        if (datasets[i][d.idsubid] == null) {
                             datasets[i][d.idsubid] = d;
                         }
-                        else{ //for adding police departments
-                            datasets[i][d.idsubid]["Violent crime"] += d["Violent crime"]; 
-                            datasets[i][d.idsubid]["Murder and nonnegligent manslaughter"] += d["Murder and nonnegligent manslaughter"];
-                            datasets[i][d.idsubid]["Rape(revised definition)1"] += d["Rape(revised definition)1"];
-                            datasets[i][d.idsubid]["Rape(legacy definition)2"] += d["Rape(legacy definition)2"];
-                            datasets[i][d.idsubid]["Robbery"] += d["Robbery"];
-                            datasets[i][d.idsubid]["Aggravated assault"] += d["Aggravated assault"];
-                            datasets[i][d.idsubid]["Property crime"] += d["Property crime"];
-                            datasets[i][d.idsubid]["Burglary"] += d["Burglary"];
-                            datasets[i][d.idsubid]["Larceny-theft"] += d["Larceny-theft"];
-                            datasets[i][d.idsubid]["Motor vehicle theft"] += d["Motor vehicle theft"];
-
+                        else { //for adding police departments
+                            for (var c = 0; c < categories.length; c++)
+                                datasets[i][d.idsubid][categories[c]] += d[categories[c]];
                         }
                     });
                     console.log(i);
@@ -170,23 +179,32 @@
         //         .attr("d", path)
         //var mytimer = setInterval(updateMap,10000);
 
-        function nextMap() {
+        //the labeler might change if we do some really funky stuff with the selections
+        //see this for ideas on transitions... http://bl.ocks.org/d3noob/7030f35b72de721622b8
+        //idk, d3 is really really weird
+        function updateMap(labeler) {
             counties.selectAll("path")
-                .attr("class",datasets[set] ? labelmap : null)
-                .attr("d", path)
+                .attr("class", labeler())
+                .attr("d", path);
+        }
+        function nextMap() {
+            updateMap(function() {
+                return datasets[set] ? labelmap : null;
+            });
             set = (set+1) % 3;//datasets.length;
         }
         function prevMap() {
-            counties.selectAll("path")
-                .attr("class",datasets[set] ? labelmap : null)
-                .attr("d", path)
+            updateMap(function() {
+                return datasets[set] ? labelmap : null;
+            });
             set = (set+datasets.length-1) % datasets.length;
         }
         function labelmap(d) {
+            console.log(category);
             if (datasets[set][d.id] == null)
                 return "q0-9";
                             /*change the Violentcrime if you don't see red*/
-            else if (datasets[set][d.id]['Violent crime'] == 0)
+            else if (datasets[set][d.id][categories[category]] == 0)
                 return "q8-9";
             else
                 return "q3-9";
@@ -196,6 +214,13 @@
             svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
         }
 
+        function switchCategory(i){
+            category = i;
+            console.log(category);
+            updateMap(function() {
+                return datasets[set] ? labelmap : null;
+            });
+        }
         </script>
     </body>
 </html>
