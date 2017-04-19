@@ -191,13 +191,15 @@
             updateMap(function() {
                 return datasets[set] ? labelmap : null;
             });
-            set = (set+1) % 3;//datasets.length;
+            set = (set+1) % datasets.length;
+            document.getElementById('year').innerHTML = set + 2006;
         }
         function prevMap() {
             updateMap(function() {
                 return datasets[set] ? labelmap : null;
             });
             set = (set+datasets.length-1) % datasets.length;
+            document.getElementById('year').innerHTML = set + 2006;
         }
         function labelmap(d) {
             console.log(category);
@@ -222,5 +224,14 @@
             });
         }
         </script>
+        <div>
+            <div>Year: <span id = "year">2006</span></div>
+            <div>
+                <input name="next" type="button" value="<" onclick="prevMap()"/>
+                <input name="next" type="button" value=">" onclick="nextMap()"/>
+                <input name="next" type="button" value="|>" onclick="nextMap()"/>
+                <input name="next" type="button" value="||"/>
+            </div>
+        </div>
     </body>
 </html>
