@@ -223,14 +223,16 @@
                 return datasets[set] ? labelmap : null;
             });
         }
+
+        var player;
         </script>
         <div>
             <div>Year: <span id = "year">2006</span></div>
             <div>
                 <input name="next" type="button" value="<" onclick="prevMap()"/>
                 <input name="next" type="button" value=">" onclick="nextMap()"/>
-                <input name="next" type="button" value="|>" onclick="nextMap()"/>
-                <input name="next" type="button" value="||"/>
+                <input name="next" type="button" value="|>" onclick="player = setInterval(nextMap, 2000)"/>
+                <input name="next" type="button" value="||" onclick="clearInterval(player)"/>
             </div>
         </div>
     </body>
