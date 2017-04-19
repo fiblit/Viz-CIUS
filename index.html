@@ -18,7 +18,7 @@
         <style>
             svg {
                 background: #eee;
-                width: 800px;
+                width: 875px;
                 height: 600px;
             }
 
@@ -77,7 +77,7 @@
         var datasets = [{},{},{},{},{},{},{},{},{},{}];
 
         var margin = {top: -5, right: -5, bottom: -5, left: -5},
-            width = 800 - margin.left - margin.right,
+            width = 875 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
 
         var path = d3.geo
@@ -88,10 +88,9 @@
             .append("svg:svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
+                .attr("transform","translate("+-95+","+0+")")
             .append("g")
                 //.call(d3.behavior.zoom().scaleExtent([1, 10]).on("zoom", zoom))
-                .call(d3.behavior.zoom().scaleExtent([1, 10]).on("load", 
-                 function(){svg.attr("transform","transform("+-1+","+0+")")}))
             .append("g");
 
         var map = d3.select('svg g');
