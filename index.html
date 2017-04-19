@@ -64,6 +64,33 @@
             <input name="8_btn" type="button" value="Larceny-theft" onclick="switchCategory(8)"/>
             <input name="9_btn" type="button" value="Motor Vehicle Theft" onclick="switchCategory(9)"/>
         </div>
+
+        <div id = "main">
+            <div id = "svg-go-here"></div>
+            <div style = "display: inline-block;">
+                <div style = "border: #000; display: inline-block;">
+                    <div>Year: <span id = "year">2006</span></div>
+                    <div>
+                        <input name="next" type="button" value="<" onclick="prevMap()"/>
+                        <input name="next" type="button" value=">" onclick="nextMap()"/>
+                        <input name="next" type="button" value="|>" onclick="player = setInterval(nextMap, 2000)"/>
+                        <input name="next" type="button" value="||" onclick="clearInterval(player)"/>
+                    </div>
+                </div>
+                <div style ="border: #000; display:inline-block;">
+                    <div>Scale</div>
+                    <div>
+                        <div style="display:inline-block;">Min</div>
+                        <div style="display:inline-block; float:right;">Max</div>
+                    </div>
+                    <div>
+                        <div style="display:inline-block;"><input name="Min" value = "0"/></div>
+                        <div style="display:inline-block; float:right;"><input name="Max" value = "0"/></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script type="text/javascript">
 
         //source
@@ -102,7 +129,7 @@
             .path();
 
         var svg = d3
-            .select("body")
+            .select("#svg-go-here")
             .append("svg:svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
@@ -226,14 +253,5 @@
 
         var player;
         </script>
-        <div>
-            <div>Year: <span id = "year">2006</span></div>
-            <div>
-                <input name="next" type="button" value="<" onclick="prevMap()"/>
-                <input name="next" type="button" value=">" onclick="nextMap()"/>
-                <input name="next" type="button" value="|>" onclick="player = setInterval(nextMap, 2000)"/>
-                <input name="next" type="button" value="||" onclick="clearInterval(player)"/>
-            </div>
-        </div>
     </body>
 </html>
