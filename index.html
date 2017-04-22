@@ -47,6 +47,18 @@
             .Blues .q6-9{fill:rgb(33,113,181)}
             .Blues .q7-9{fill:rgb(8,81,156)}
             .Blues .q8-9{fill:rgb(255,48,107)}
+
+            .infobardiv {
+                border: solid black 1px;
+                margin: 1px;
+                padding: 3px;
+                display: inline-block;
+            }
+
+            #county-tooltip {
+                position: absolute;
+                display: hidden;
+            }
         </style>
     </head>
     <body data-gr-c-s-loaded="true">
@@ -68,7 +80,7 @@
         <div id = "main">
             <div id = "svg-go-here"></div>
             <div style = "display: inline-block;">
-                <div style = "border: #000; display: inline-block;">
+                <div class = "infobardiv">
                     <div>Year: <span id = "year">2006</span></div>
                     <div>
                         <input name="next" type="button" value="<" onclick="prevMap()"/>
@@ -77,18 +89,25 @@
                         <input name="next" type="button" value="||" onclick="clearInterval(player)"/>
                     </div>
                 </div>
-                <div style ="border: #000; display:inline-block;">
+                <div class = "infobardiv">
                     <div>Scale</div>
                     <div>
                         <div style="display:inline-block;">Min</div>
                         <div style="display:inline-block; float:right;">Max</div>
                     </div>
                     <div>
-                        <div style="display:inline-block;"><input name="Min" value = "0"/></div>
-                        <div style="display:inline-block; float:right;"><input name="Max" value = "0"/></div>
+                        <div style="display:inline-block;"><input id ="MinBox" name="Min" value = "0"/></div>
+                        <div style="display:inline-block; float:right;"><input id = "MaxBox" name="Max" value = "0"/></div>
                     </div>
                 </div>
+                <div class = "infobardiv">
+                    <div>National Values</div>
+                </div>
             </div>
+        </div>
+
+        <div id = "county-tooltip">
+            
         </div>
 
         <script type="text/javascript">
@@ -171,6 +190,7 @@
                         .append("svg:path")
                             /* apparently this is asynchronous */
                             .attr("class", datasets[set] ? labelmap : null)
+                            .attr("id", datasets[set] ? idmap : null)
                             .attr("d", path);
         });
 
@@ -209,9 +229,10 @@
         //the labeler might change if we do some really funky stuff with the selections
         //see this for ideas on transitions... http://bl.ocks.org/d3noob/7030f35b72de721622b8
         //idk, d3 is really really weird
-        function updateMap(labeler) {
+        function updateMap(labeler, IDer) {
             counties.selectAll("path")
                 .attr("class", labeler())
+                .attr("id", IDer())
                 .attr("d", path);
         }
         function nextMap() {
@@ -224,19 +245,23 @@
         function prevMap() {
             updateMap(function() {
                 return datasets[set] ? labelmap : null;
+            }, function () {
+                return datasets[set] ? idmap : null;
             });
             set = (set+datasets.length-1) % datasets.length;
             document.getElementById('year').innerHTML = set + 2006;
         }
         function labelmap(d) {
-            console.log(category);
             if (datasets[set][d.id] == null)
-                return "q0-9";
+                return "q0-9" ;
                             /*change the Violentcrime if you don't see red*/
             else if (datasets[set][d.id][categories[category]] == 0)
                 return "q8-9";
             else
                 return "q3-9";
+        }
+        function idmap(d) {
+            return d.id;//yep
         }
 
         function zoom() {
@@ -250,7 +275,6 @@
                 return datasets[set] ? labelmap : null;
             });
         }
-
         var player;
         </script>
     </body>
