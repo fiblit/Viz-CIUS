@@ -85,8 +85,8 @@
                     <div>
                         <input name="next" type="button" value="<" onclick="prevMap()"/>
                         <input name="next" type="button" value=">" onclick="nextMap()"/>
-                        <input name="next" type="button" value="|>" onclick="player = setInterval(nextMap, 2000)"/>
-                        <input name="next" type="button" value="||" onclick="clearInterval(player)"/>
+                        <input name="next" type="button" value="|>" onclick="play()"/>
+                        <input name="next" type="button" value="||" onclick="pause()"/>
                     </div>
                 </div>
                 <div class = "infobardiv">
@@ -251,6 +251,12 @@
             set = (set+datasets.length-1) % datasets.length;
             document.getElementById('year').innerHTML = set + 2006;
         }
+        function play() {
+            player = setInterval(nextMap, 2000);
+        }
+        function pause() {
+            clearInterval(player);
+        }
         function labelmap(d) {
             if (datasets[set][d.id] == null)
                 return "q0-9" ;
@@ -264,10 +270,6 @@
             return d.id;//yep
         }
 
-        function zoom() {
-            svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-        }
-
         function switchCategory(i){
             category = i;
             console.log(category);
@@ -276,6 +278,17 @@
             });
         }
         var player;
+
+        function onCountyHover() {
+            //I'll somehow need to pass in the FIPS from the path. 
+            //I didn't get to this until late though, so I think I'm going to bed.
+            //Will finish this in the morning
+        }
+
+        function getCountyTooltipText(FIPS) {
+            //Maybe getCountyName, get each category value, etc, idk.
+            return "IDGAF";
+        }
         </script>
     </body>
 </html>
