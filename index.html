@@ -11,6 +11,7 @@
         <!-- https://github.com/d3/d3-geo -->
         <script src="https://d3js.org/d3-array.v1.min.js"></script>
         <script src="https://d3js.org/d3-geo.v1.min.js"></script>
+        <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
         <script>
             var projection = d3.geoAlbers(),
                 path = d3.geoPath(projection);
@@ -58,6 +59,34 @@
             #county-tooltip {
                 position: absolute;
                 display: hidden;
+            }
+            .d3-tip {
+                line-height: 1;
+                font-weight: bold;
+                padding: 12px;
+                background: rgba(0, 0, 0, 0.8);
+                color: #fff;
+                border-radius: 2px;
+            }
+
+            /* Creates a small triangle extender for the tooltip */
+            .d3-tip:after {
+                box-sizing: border-box;
+                display: inline;
+                font-size: 10px;
+                width: 100%;
+                line-height: 1;
+                color: rgba(0, 0, 0, 0.8);
+                content: "\25BC";
+                position: absolute;
+                text-align: center;
+            }
+
+            /* Style northward tooltips differently */
+            .d3-tip.n:after {
+                margin: -1px 0 0 0;
+                top: 100%;
+                left: 0;
             }
         </style>
     </head>
@@ -182,6 +211,21 @@
             FIPS = csv;
         });
 
+        /*var tooltip = d3.select("body")
+            .append("div")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden")
+            .text("a simple tooltip");
+        */
+
+        var tip = d3.tip()
+            .attr('class', 'd3-tip')
+            .offset([-5, 0])
+            .html(function(d) {return onCountyHover(d);});
+
+        var player;
+
         d3.json("./data/us-counties.json", function(json) {
             counties
                 .selectAll("path")
@@ -191,7 +235,10 @@
                             /* apparently this is asynchronous */
                             .attr("class", datasets[set] ? labelmap : null)
                             .attr("id", datasets[set] ? idmap : null)
-                            .attr("d", path);
+                            .attr("d", path)
+                            .on('mouseover', tip.show)
+                            .on('mouseout', tip.hide)
+                            
         });
 
         d3.json("./data/us-states.json", function(json) {
@@ -215,11 +262,14 @@
                                 datasets[i][d.idsubid][categories[c]] += d[categories[c]];
                         }
                     });
-                    console.log(i);
-                    console.log(datasets[i]);
+                    //console.log(i);
+                    //console.log(datasets[i]);
                 });
             }(i);
         }
+
+        svg.call(tip);
+
         //i=0;
         // counties.selectAll("path")
         //         .attr("class",datasets[set] ? labelmap : null)
@@ -233,11 +283,18 @@
             counties.selectAll("path")
                 .attr("class", labeler())
                 .attr("id", IDer())
-                .attr("d", path);
+                .attr("d", path)
+                .on("mouseover", function(){return tooltip.style("visibility", "visible");})
+                .on("mouseover", function(){return tooltip.text(d.id);})
+                .on("mousemove", function(){return tooltip.style("top",
+                    (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+                .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
         }
         function nextMap() {
             updateMap(function() {
                 return datasets[set] ? labelmap : null;
+            }, function () {
+                return datasets[set] ? idmap : null;
             });
             set = (set+1) % datasets.length;
             document.getElementById('year').innerHTML = set + 2006;
@@ -275,19 +332,22 @@
             console.log(category);
             updateMap(function() {
                 return datasets[set] ? labelmap : null;
+            }, function () {
+                return datasets[set] ? idmap : null;
             });
         }
-        var player;
 
-        function onCountyHover() {
-            //I'll somehow need to pass in the FIPS from the path. 
-            //I didn't get to this until late though, so I think I'm going to bed.
-            //Will finish this in the morning
+        function onCountyHover(d) {
+            console.log(d);
+            console.log(d.id);
+            return getCountyTooltipText(d.id);
         }
 
+        //TODO KEITH: you can do this
         function getCountyTooltipText(FIPS) {
             //Maybe getCountyName, get each category value, etc, idk.
-            return "IDGAF";
+            console.log(typeof(""+FIPS));
+            return ""+FIPS;
         }
         </script>
     </body>
