@@ -370,7 +370,10 @@
 			//console.log(d.id);
 			getCountyTooltipText(d.id);
 			console.log(county[set]);
-			return county[set];
+			var http = "";
+			for (var c = 0; c < categories.length; c++)
+				http += "<p style='margin:1px;padding:1px;'>"+categories[c]+": " + county[set][categories[c]] + "</p>";
+			return http;
 		}
 
 		//TODO KEITH: you can do this. Yes I can!
@@ -380,7 +383,7 @@
 				for (var year = 0; year < datasets.length; year++){
 					var iter = function(y){
 						county[y]["County"] = datasets[set][FIPS]["County"];
-						for (var c = 0; c < categories.length-1; c++) {
+						for (var c = 0; c < categories.length; c++) {
 							var iter2 = function(c) {
 								county[y][categories[c]]=datasets[set][FIPS][categories[c]];
 							}(c);
