@@ -38,7 +38,7 @@
 				stroke: #fff;
 				stroke-width: .25px;
 			}
-
+/*
 			.Blues .q0-9{fill:rgb(247,251,255)}
 			.Blues .q1-9{fill:rgb(222,235,247)}
 			.Blues .q2-9{fill:rgb(198,219,239)}
@@ -48,7 +48,7 @@
 			.Blues .q6-9{fill:rgb(33,113,181)}
 			.Blues .q7-9{fill:rgb(8,81,156)}
 			.Blues .q8-9{fill:rgb(255,48,107)}
-
+*/
 			.infobardiv {
 				border: solid black 1px;
 				margin: 1px;
@@ -236,7 +236,7 @@
 			.offset([-5, 0])
 			.html(function(d) {return onCountyHover(d);});
 
-        var player = null;
+		var player = null;
 
 		d3.json("./data/us-counties.json", function(json) {
 			counties
@@ -245,7 +245,7 @@
 					.enter()
 						.append("svg:path")
 							/* apparently this is asynchronous */
-							.attr("class", datasets[set] ? labelmap : null)
+							.attr("fill", datasets[set] ? labelmap : null)
 							.attr("id", datasets[set] ? idmap : null)
 							.attr("d", path)
 							.on('mouseover', tip.show)
@@ -289,72 +289,85 @@
 						}
 					});
 					for (var c = 0; c < categories.length; c++){
-							nationals[i][categories[c]] /= county_counter;
+						nationals[i][categories[c]] /= county_counter;
 					}
-				});              
+				});			  
 			}(i);
 		}
 		svg.call(tip);
 
-		
-
 		//i=0;
 		// counties.selectAll("path")
-		//         .attr("class",datasets[set] ? labelmap : null)
-		//         .attr("d", path)
+		//		 .attr("class",datasets[set] ? labelmap : null)
+		//		 .attr("d", path)
 		//var mytimer = setInterval(updateMap,10000);
 
+		//the labeler might change if we do some really funky stuff with the selections
+		//see this for ideas on transitions... http://bl.ocks.org/d3noob/7030f35b72de721622b8
+		//idk, d3 is really really weird
+		function updateMap(labeler, IDer) {
+			counties.selectAll("path")
+				.attr("fill", labeler())
+				.attr("id", IDer())
+				.attr("d", path)
+				.on("mouseover", tip.show)
+				.on("mouseout", tip.hide);
+		}
+		function nextMap() {
+			updateMap(function() {
+				return datasets[set] ? labelmap : null;
+			}, function () {
+				return datasets[set] ? idmap : null;
+			});
+			set = (set+1) % datasets.length;
+			document.getElementById('year').innerHTML = set + 2006;
+		}
+		function prevMap() {
+			updateMap(function() {
+				return datasets[set] ? labelmap : null;
+			}, function () {
+				return datasets[set] ? idmap : null;
+			});
+			set = (set+datasets.length-1) % datasets.length;
+			document.getElementById('year').innerHTML = set + 2006;
+		}
 
-        //the labeler might change if we do some really funky stuff with the selections
-        //see this for ideas on transitions... http://bl.ocks.org/d3noob/7030f35b72de721622b8
-        //idk, d3 is really really weird
-        function updateMap(labeler, IDer) {
-            counties.selectAll("path")
-                .attr("class", labeler())
-                .attr("id", IDer())
-                .attr("d", path)
-                .on("mouseover", tip.show)
-                .on("mouseout", tip.hide);
-        }
-        function nextMap() {
-            updateMap(function() {
-                return datasets[set] ? labelmap : null;
-            }, function () {
-                return datasets[set] ? idmap : null;
-            });
-            set = (set+1) % datasets.length;
-            document.getElementById('year').innerHTML = set + 2006;
-        }
-        function prevMap() {
-            updateMap(function() {
-                return datasets[set] ? labelmap : null;
-            }, function () {
-                return datasets[set] ? idmap : null;
-            });
-            set = (set+datasets.length-1) % datasets.length;
-            document.getElementById('year').innerHTML = set + 2006;
-        }
-
-        function play() {
-            if (player == null)
-                player = setInterval(nextMap, 2000);
-        }
-        function pause() {
-            clearInterval(player);
-            player = null;
-        }
-        function labelmap(d) {
-            if (datasets[set][d.id] == null)
-                return "q0-9" ;
-                            /*change the Violentcrime if you don't see red*/
-            else if (datasets[set][d.id][categories[category]] == 0)
-                return "q8-9";
-            else
-                return "q3-9";
-        }
-        function idmap(d) {
-            return d.id;//yep
-        }
+		function play() {
+			if (player == null)
+				player = setInterval(nextMap, 2000);
+		}
+		function pause() {
+			clearInterval(player);
+			player = null;
+		}
+		function labelmap(d) {
+			var nil_color = [230,230,230];
+			var z_color = [75,25,25];
+			var min_color = [100,50,50];
+			var max_color = [255,100,100];
+			var min = nationals[set][categories[category] + "-min"];
+			var max = nationals[set][categories[category] + "-max"];
+			var t = (datasets[set][d.id][categories[category]] - min)/(max - min);
+			if (datasets[set][d.id] == null)
+				return "rgb("
+					+nil_color[0]+","
+					+nil_color[1]+","
+					+nil_color[2]+")";
+			else if (t == 0)
+				return "rgb("
+					+z_color[0]+","
+					+z_color[1]+","
+					+z_color[2]+")";
+			else {
+				return "rgb("
+					+(min_color[0]*(1-t)+max_color[0]*t)+","
+					+(min_color[1]*(1-t)+max_color[1]*t)+","
+					+(min_color[2]*(1-t)+max_color[2]*t)+")";
+			}
+		}
+		function idmap(d) {
+			return d.id;//yep
+		}
 
 		function switchCategory(i){
 			category = i;
@@ -370,7 +383,8 @@
 			//console.log(d.id);
 			getCountyTooltipText(d.id);
 			console.log(county[set]);
-			var http = "";
+			var http = "<p style='margin:1px;padding:1px;text-decoration:underline;'>County: "+county[set]["County"] + "</p>";
+			//console.log(http);
 			for (var c = 0; c < categories.length; c++)
 				http += "<p style='margin:1px;padding:1px;'>"+categories[c]+": " + county[set][categories[c]] + "</p>";
 			return http;
