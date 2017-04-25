@@ -1,385 +1,390 @@
 <!DOCTYPE html>
 <!-- saved from url=(0086)https://ay16.moodle.umn.edu/pluginfile.php/1953944/mod_resource/content/1/HelloD3.html -->
 <html lang="en" class="gr__ay16_moodle_umn_edu">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>FBI: UCR: CIUS</title>	
-        <!-- https://github.com/d3/d3 -->
-        <script src="https://d3js.org/d3.v3.js"></script>
-            <!-- for d3.geo.path to work we need v3, however I read that
-            we can use v4 if we change it to geoPath. Didn't bother yet -->
-        <!-- https://github.com/d3/d3-geo -->
-        <script src="https://d3js.org/d3-array.v1.min.js"></script>
-        <script src="https://d3js.org/d3-geo.v1.min.js"></script>
-        <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-        <script>
-            var projection = d3.geoAlbers(),
-                path = d3.geoPath(projection);
-        </script>
-        <style>
-            svg {
-                background: #eee;
-                width: 875px;
-                height: 600px;
-            }
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>FBI: UCR: CIUS</title>	
+		<!-- https://github.com/d3/d3 -->
+		<script src="https://d3js.org/d3.v3.js"></script>
+			<!-- for d3.geo.path to work we need v3, however I read that
+			we can use v4 if we change it to geoPath. Didn't bother yet -->
+		<!-- https://github.com/d3/d3-geo -->
+		<script src="https://d3js.org/d3-array.v1.min.js"></script>
+		<script src="https://d3js.org/d3-geo.v1.min.js"></script>
+		<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+		<script>
+			var projection = d3.geoAlbers(),
+				path = d3.geoPath(projection);
+		</script>
+		<style>
+			svg {
+				background: #eee;
+				width: 875px;
+				height: 600px;
+			}
 
-            .overlay {
-                fill: none;
-                pointer-events: all;
-            }
+			.overlay {
+				fill: none;
+				pointer-events: all;
+			}
 
-            #counties path {
-                stroke: #000;
-                stroke-width: .25px;
-            }
+			#counties path {
+				stroke: #000;
+				stroke-width: .25px;
+			}
 
-            #states path {
-                fill: none;
-                stroke: #fff;
-                stroke-width: .25px;
-            }
+			#states path {
+				fill: none;
+				stroke: #fff;
+				stroke-width: .25px;
+			}
 
-            .Blues .q0-9{fill:rgb(247,251,255)}
-            .Blues .q1-9{fill:rgb(222,235,247)}
-            .Blues .q2-9{fill:rgb(198,219,239)}
-            .Blues .q3-9{fill:rgb(158,202,225)}
-            .Blues .q4-9{fill:rgb(107,174,214)}
-            .Blues .q5-9{fill:rgb(66,146,198)}
-            .Blues .q6-9{fill:rgb(33,113,181)}
-            .Blues .q7-9{fill:rgb(8,81,156)}
-            .Blues .q8-9{fill:rgb(255,48,107)}
+			.Blues .q0-9{fill:rgb(247,251,255)}
+			.Blues .q1-9{fill:rgb(222,235,247)}
+			.Blues .q2-9{fill:rgb(198,219,239)}
+			.Blues .q3-9{fill:rgb(158,202,225)}
+			.Blues .q4-9{fill:rgb(107,174,214)}
+			.Blues .q5-9{fill:rgb(66,146,198)}
+			.Blues .q6-9{fill:rgb(33,113,181)}
+			.Blues .q7-9{fill:rgb(8,81,156)}
+			.Blues .q8-9{fill:rgb(255,48,107)}
 
-            .infobardiv {
-                border: solid black 1px;
-                margin: 1px;
-                padding: 3px;
-                display: inline-block;
-            }
+			.infobardiv {
+				border: solid black 1px;
+				margin: 1px;
+				padding: 3px;
+				display: inline-block;
+			}
 
-            #county-tooltip {
-                position: absolute;
-                display: hidden;
-            }
-            .d3-tip {
-                line-height: 1;
-                font-weight: bold;
-                padding: 12px;
-                background: rgba(0, 0, 0, 0.8);
-                color: #fff;
-                border-radius: 2px;
-            }
+			#county-tooltip {
+				position: absolute;
+				display: hidden;
+			}
+			.d3-tip {
+				line-height: 1;
+				font-weight: bold;
+				padding: 12px;
+				background: rgba(0, 0, 0, 0.8);
+				color: #fff;
+				border-radius: 2px;
+			}
 
-            /* Creates a small triangle extender for the tooltip */
-            .d3-tip:after {
-                box-sizing: border-box;
-                display: inline;
-                font-size: 10px;
-                width: 100%;
-                line-height: 1;
-                color: rgba(0, 0, 0, 0.8);
-                content: "\25BC";
-                position: absolute;
-                text-align: center;
-            }
+			/* Creates a small triangle extender for the tooltip */
+			.d3-tip:after {
+				box-sizing: border-box;
+				display: inline;
+				font-size: 10px;
+				width: 100%;
+				line-height: 1;
+				color: rgba(0, 0, 0, 0.8);
+				content: "\25BC";
+				position: absolute;
+				text-align: center;
+			}
 
-            /* Style northward tooltips differently */
-            .d3-tip.n:after {
-                margin: -1px 0 0 0;
-                top: 100%;
-                left: 0;
-            }
-        </style>
-    </head>
-    <body data-gr-c-s-loaded="true">
-        <div id="option">
-            <!-- there is a way to increment this, but I don't care to look it up right now -->
-            <!-- TODO: add a tooltip "definition" with these to explain what they are -->
-            <input name="0_btn" type="button" value="Violent Crime" onclick="switchCategory(0)"/>
-            <input name="1_btn" type="button" value="Murder" onclick="switchCategory(1)"/>
-            <input name="2_btn" type="button" value="Rape (revised definition)" onclick="switchCategory(2)"/>
-            <input name="3_btn" type="button" value="Rape (legacy definition)" onclick="switchCategory(3)"/>
-            <input name="4_btn" type="button" value="Robbery" onclick="switchCategory(4)"/>
-            <input name="5_btn" type="button" value="Aggravated Assault" onclick="switchCategory(5)"/>
-            <input name="6_btn" type="button" value="Property Crime" onclick="switchCategory(6)"/>
-            <input name="7_btn" type="button" value="Burglary" onclick="switchCategory(7)"/>
-            <input name="8_btn" type="button" value="Larceny-theft" onclick="switchCategory(8)"/>
-            <input name="9_btn" type="button" value="Motor Vehicle Theft" onclick="switchCategory(9)"/>
-        </div>
+			/* Style northward tooltips differently */
+			.d3-tip.n:after {
+				margin: -1px 0 0 0;
+				top: 100%;
+				left: 0;
+			}
+		</style>
+	</head>
+	<body data-gr-c-s-loaded="true">
+		<div id="option">
+			<!-- there is a way to increment this, but I don't care to look it up right now -->
+			<!-- TODO: add a tooltip "definition" with these to explain what they are -->
+			<input name="0_btn" type="button" value="Violent Crime" onclick="switchCategory(0)"/>
+			<input name="1_btn" type="button" value="Murder" onclick="switchCategory(1)"/>
+			<input name="2_btn" type="button" value="Rape (revised definition)" onclick="switchCategory(2)"/>
+			<input name="3_btn" type="button" value="Rape (legacy definition)" onclick="switchCategory(3)"/>
+			<input name="4_btn" type="button" value="Robbery" onclick="switchCategory(4)"/>
+			<input name="5_btn" type="button" value="Aggravated Assault" onclick="switchCategory(5)"/>
+			<input name="6_btn" type="button" value="Property Crime" onclick="switchCategory(6)"/>
+			<input name="7_btn" type="button" value="Burglary" onclick="switchCategory(7)"/>
+			<input name="8_btn" type="button" value="Larceny-theft" onclick="switchCategory(8)"/>
+			<input name="9_btn" type="button" value="Motor Vehicle Theft" onclick="switchCategory(9)"/>
+		</div>
 
-        <div id = "main">
-            <div id = "svg-go-here"></div>
-            <div style = "display: inline-block;">
-                <div class = "infobardiv">
-                    <div>Year: <span id = "year">2006</span></div>
-                    <div>
-                        <input name="next" type="button" value="<" onclick="prevMap()"/>
-                        <input name="next" type="button" value=">" onclick="nextMap()"/>
-                        <input name="next" type="button" value="|>" onclick="play()"/>
-                        <input name="next" type="button" value="||" onclick="pause()"/>
-                    </div>
-                </div>
-                <div class = "infobardiv">
-                    <div>Scale</div>
-                    <div>
-                        <div style="display:inline-block;">Min</div>
-                        <div style="display:inline-block; float:right;">Max</div>
-                    </div>
-                    <div>
-                        <div style="display:inline-block;"><input id ="MinBox" name="Min" value = "0"/></div>
-                        <div style="display:inline-block; float:right;"><input id = "MaxBox" name="Max" value = "0"/></div>
-                    </div>
-                </div>
-                <div class = "infobardiv">
-                    <div>National Values</div>
-                </div>
-            </div>
-        </div>
+		<div id = "main">
+			<div id = "svg-go-here"></div>
+			<div style = "display: inline-block;">
+				<div class = "infobardiv">
+					<div>Year: <span id = "year">2006</span></div>
+					<div>
+						<input name="next" type="button" value="<" onclick="prevMap()"/>
+						<input name="next" type="button" value=">" onclick="nextMap()"/>
+						<input name="next" type="button" value="|>" onclick="play()"/>
+						<input name="next" type="button" value="||" onclick="pause()"/>
+					</div>
+				</div>
+				<div class = "infobardiv">
+					<div>Scale</div>
+					<div>
+						<div style="display:inline-block;">Min</div>
+						<div style="display:inline-block; float:right;">Max</div>
+					</div>
+					<div>
+						<div style="display:inline-block;"><input id ="MinBox" name="Min" value = "0"/></div>
+						<div style="display:inline-block; float:right;"><input id = "MaxBox" name="Max" value = "0"/></div>
+					</div>
+				</div>
+				<div class = "infobardiv">
+					<div>National Values</div>
+				</div>
+			</div>
+		</div>
 
-        <div id = "county-tooltip">
-            
-        </div>
+		<div id = "county-tooltip">
+			
+		</div>
 
-        <script type="text/javascript">
+		<script type="text/javascript">
 
-        //source
-        // https://strongriley.github.io/d3/ex/choropleth.html
-        var categories = [
-            "Violent crime",
-            "Murder and nonnegligent manslaughter",
-            "Rape(revised definition)1",
-            "Rape(legacy definition)2",
-            "Robbery",
-            "Aggravated assault",
-            "Property crime",
-            "Burglary",
-            "Larceny-theft",
-            "Motor vehicle theft",
-        ];
-        var category = 0;
+		//source
+		// https://strongriley.github.io/d3/ex/choropleth.html
+		var categories = [
+			"Violent crime",
+			"Murder and nonnegligent manslaughter",
+			"Rape(revised definition)1",
+			"Rape(legacy definition)2",
+			"Robbery",
+			"Aggravated assault",
+			"Property crime",
+			"Burglary",
+			"Larceny-theft",
+			"Motor vehicle theft",
+		];
+		var category = 0;
 
-        var data = ["./data/Tb_10_Offenses_by_Counties_2006.csv",
-            "./data/Tb_10_Offenses_by_Counties_2007.csv",
-            "./data/Tb_10_Offenses_by_Counties_2008.csv",
-            "./data/Tb_10_Offenses_by_Counties_2009.csv",
-            "./data/Tb_10_Offenses_by_Counties_2010.csv",
-            "./data/Tb_10_Offenses_by_Counties_2011.csv",
-            "./data/Tb_10_Offenses_by_Counties_2012.csv",
-            "./data/Tb_10_Offenses_by_Counties_2013.csv",
-            "./data/Tb_10_Offenses_by_Counties_2014.csv",
-            "./data/Tb_10_Offenses_by_Counties_2015.csv"]; // loaded asynchronously later.
-        var set = 0;
-        var datasets = [{},{},{},{},{},{},{},{},{},{}];
-        var nationals = [{},{},{},{},{},{},{},{},{},{}];
-        var county = [{},{},{},{},{},{},{},{},{},{}];
-        for (var i = 0; i < nationals.length; i++){
-	        for (var c = 0; c < categories.length; c++){
-	        	var iter = function(i,c) {
-	        		nationals[i][categories[c]] = 0;
-	        	}(i,c);
-	        }
-	    }
+		var data = ["./data/Tb_10_Offenses_by_Counties_2006.csv",
+			"./data/Tb_10_Offenses_by_Counties_2007.csv",
+			"./data/Tb_10_Offenses_by_Counties_2008.csv",
+			"./data/Tb_10_Offenses_by_Counties_2009.csv",
+			"./data/Tb_10_Offenses_by_Counties_2010.csv",
+			"./data/Tb_10_Offenses_by_Counties_2011.csv",
+			"./data/Tb_10_Offenses_by_Counties_2012.csv",
+			"./data/Tb_10_Offenses_by_Counties_2013.csv",
+			"./data/Tb_10_Offenses_by_Counties_2014.csv",
+			"./data/Tb_10_Offenses_by_Counties_2015.csv"]; // loaded asynchronously later.
+		var set = 0;
+		var datasets = [{},{},{},{},{},{},{},{},{},{}];
+		var nationals = [{},{},{},{},{},{},{},{},{},{}];
+		var county = [{},{},{},{},{},{},{},{},{},{}];
+		for (var i = 0; i < nationals.length; i++){
+			for (var c = 0; c < categories.length; c++){
+				var iter = function(i,c) {
+					nationals[i][categories[c]] = 0;
+				}(i,c);
+			}
+		}
 
-        var margin = {top: -5, right: -5, bottom: -5, left: -5},
-            width = 875 - margin.left - margin.right,
-            height = 600 - margin.top - margin.bottom;
-        
+		var margin = {top: -5, right: -5, bottom: -5, left: -5},
+			width = 875 - margin.left - margin.right,
+			height = 600 - margin.top - margin.bottom;
+		
 
-        var path = d3.geo
-            .path();
+		var path = d3.geo
+			.path();
 
-        var svg = d3
-            .select("#svg-go-here")
-            .append("svg:svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .attr("transform","translate("+-80+","+0+")")
-            .append("g")
-                //.call(d3.behavior.zoom().scaleExtent([1, 10]).on("zoom", zoom))
-            .append("g");
+		var svg = d3
+			.select("#svg-go-here")
+			.append("svg:svg")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom)
+				.attr("transform","translate("+-80+","+0+")")
+			.append("g")
+				//.call(d3.behavior.zoom().scaleExtent([1, 10]).on("zoom", zoom))
+			.append("g");
 
 /*
-        var map = d3.select('svg g');
-        map.on('click',function() {
-            console.log('clicked');
-            nextMap();
-        });
+		var map = d3.select('svg g');
+		map.on('click',function() {
+			console.log('clicked');
+			nextMap();
+		});
 */
-        svg.append("rect")
-            .attr("class", "overlay")
-            .attr("width", width)
-            .attr("height", height);
+		svg.append("rect")
+			.attr("class", "overlay")
+			.attr("width", width)
+			.attr("height", height);
 
-        var counties = svg
-            .append("svg:g")
-            .attr("id", "counties")
-            .attr("class", "Blues");
+		var counties = svg
+			.append("svg:g")
+			.attr("id", "counties")
+			.attr("class", "Blues");
 
-        var states = svg
-            .append("svg:g")
-            .attr("id", "states");
+		var states = svg
+			.append("svg:g")
+			.attr("id", "states");
 
-        var FIPS;
-        d3.csv("./data/FIPS_national.txt", function(csv) {
-            FIPS = csv;
-        });
+		var FIPS;
+		d3.csv("./data/FIPS_national.txt", function(csv) {
+			FIPS = csv;
+		});
 
-        /*var tooltip = d3.select("body")
-            .append("div")
-            .style("position", "absolute")
-            .style("z-index", "10")
-            .style("visibility", "hidden")
-            .text("a simple tooltip");
-        */
+		/*var tooltip = d3.select("body")
+			.append("div")
+			.style("position", "absolute")
+			.style("z-index", "10")
+			.style("visibility", "hidden")
+			.text("a simple tooltip");
+		*/
 
-        var tip = d3.tip()
-            .attr('class', 'd3-tip')
-            .offset([-5, 0])
-            .html(function(d) {return onCountyHover(d);});
+		var tip = d3.tip()
+			.attr('class', 'd3-tip')
+			.offset([-5, 0])
+			.html(function(d) {return onCountyHover(d);});
 
-        var player;
+		var player;
 
-        d3.json("./data/us-counties.json", function(json) {
-            counties
-                .selectAll("path")
-                    .data(json.features)
-                    .enter()
-                        .append("svg:path")
-                            /* apparently this is asynchronous */
-                            .attr("class", datasets[set] ? labelmap : null)
-                            .attr("id", datasets[set] ? idmap : null)
-                            .attr("d", path)
-                            .on('mouseover', tip.show)
-                            .on('mouseout', tip.hide)
-                            
-        });
+		d3.json("./data/us-counties.json", function(json) {
+			counties
+				.selectAll("path")
+					.data(json.features)
+					.enter()
+						.append("svg:path")
+							/* apparently this is asynchronous */
+							.attr("class", datasets[set] ? labelmap : null)
+							.attr("id", datasets[set] ? idmap : null)
+							.attr("d", path)
+							.on('mouseover', tip.show)
+							.on('mouseout', tip.hide)
+							
+		});
 
-        d3.json("./data/us-states.json", function(json) {
-            states
-                .selectAll("path")
-                    .data(json.features)
-                    .enter()
-                        .append("svg:path")
-                            .attr("d", path);
-        });
-        for (var i = 0; i < data.length; i++){
-            var iter = function (i){
-            	var county_counter = 0;
-                d3.csv(data[i], function(csv) {
-                    csv.forEach(function(d) {   // doing this asynch?
-	            		if (datasets[i][d.idsubid] == null){
-	            			datasets[i][d.idsubid] = {};
-	                        datasets[i][d.idsubid]["County"] = d["County"];
-	                        county_counter++;
-	            		}
-	                    for (var c = 0; c < categories.length; c++){
-                        		var value = Number(d[categories[c]]);
-                        		if (!isNaN(value)){
-	                        		datasets[i][d.idsubid][categories[c]] += value;
-	                        		nationals[i][categories[c]] += value;
-                        		}
-                        }
-                    });
-	                for (var c = 0; c < categories.length; c++){
-	                		nationals[i][categories[c]] /= county_counter;
-	                }
-                });              
-            }(i);
-        }
-        svg.call(tip);
+		d3.json("./data/us-states.json", function(json) {
+			states
+				.selectAll("path")
+					.data(json.features)
+					.enter()
+						.append("svg:path")
+							.attr("d", path);
+		});
+		for (var i = 0; i < data.length; i++){
+			var iter = function (i){
+				var county_counter = 0;
+				d3.csv(data[i], function(csv) {
+					csv.forEach(function(d) {   // doing this asynch?
+						if (datasets[i][d.idsubid] == null){
+							datasets[i][d.idsubid] = {};
+							datasets[i][d.idsubid]["County"] = d["County"];
+							county_counter++;
+							for (var c = 0; c < categories.length; c++){
+								var value = Number(d[categories[c]]);
+								if (!isNaN(value)){
+									datasets[i][d.idsubid][categories[c]] = value;
+									nationals[i][categories[c]] += value;
+								}
+							}
+						}
+						else{
+							for (var c = 0; c < categories.length; c++){
+								var value = Number(d[categories[c]]);
+								if (!isNaN(value)){
+									datasets[i][d.idsubid][categories[c]] += value;
+									nationals[i][categories[c]] += value;
+								}
+							}
+						}
+					});
+					for (var c = 0; c < categories.length; c++){
+							nationals[i][categories[c]] /= county_counter;
+					}
+				});              
+			}(i);
+		}
+		svg.call(tip);
 
-        console.log(nationals[set]);
-        console.log(datasets[set]);
+		
 
-        //i=0;
-        // counties.selectAll("path")
-        //         .attr("class",datasets[set] ? labelmap : null)
-        //         .attr("d", path)
-        //var mytimer = setInterval(updateMap,10000);
+		//i=0;
+		// counties.selectAll("path")
+		//         .attr("class",datasets[set] ? labelmap : null)
+		//         .attr("d", path)
+		//var mytimer = setInterval(updateMap,10000);
 
-        //the labeler might change if we do some really funky stuff with the selections
-        //see this for ideas on transitions... http://bl.ocks.org/d3noob/7030f35b72de721622b8
-        //idk, d3 is really really weird
-        function updateMap(labeler, IDer) {
-            counties.selectAll("path")
-                .attr("class", labeler())
-                .attr("id", IDer())
-                .attr("d", path)
-                .on("mouseover", tip.show)
-                .on("mouseout", tip.hide);
-        }
-        function nextMap() {
-            updateMap(function() {
-                return datasets[set] ? labelmap : null;
-            }, function () {
-                return datasets[set] ? idmap : null;
-            });
-            set = (set+1) % datasets.length;
-            document.getElementById('year').innerHTML = set + 2006;
-        }
-        function prevMap() {
-            updateMap(function() {
-                return datasets[set] ? labelmap : null;
-            }, function () {
-                return datasets[set] ? idmap : null;
-            });
-            set = (set+datasets.length-1) % datasets.length;
-            document.getElementById('year').innerHTML = set + 2006;
-        }
-        function play() {
-            player = setInterval(nextMap, 2000);
-        }
-        function pause() {
-            clearInterval(player);
-        }
-        function labelmap(d) {
-            if (datasets[set][d.id] == null)
-                return "q0-9" ;
-                            /*change the Violentcrime if you don't see red*/
-            else if (datasets[set][d.id][categories[category]] == 0)
-                return "q8-9";
-            else
-                return "q3-9";
-        }
-        function idmap(d) {
-            return d.id;//yep
-        }
+		//the labeler might change if we do some really funky stuff with the selections
+		//see this for ideas on transitions... http://bl.ocks.org/d3noob/7030f35b72de721622b8
+		//idk, d3 is really really weird
+		function updateMap(labeler, IDer) {
+			counties.selectAll("path")
+				.attr("class", labeler())
+				.attr("id", IDer())
+				.attr("d", path)
+				.on("mouseover", tip.show)
+				.on("mouseout", tip.hide);
+		}
+		function nextMap() {
+			updateMap(function() {
+				return datasets[set] ? labelmap : null;
+			}, function () {
+				return datasets[set] ? idmap : null;
+			});
+			set = (set+1) % datasets.length;
+			document.getElementById('year').innerHTML = set + 2006;
+		}
+		function prevMap() {
+			updateMap(function() {
+				return datasets[set] ? labelmap : null;
+			}, function () {
+				return datasets[set] ? idmap : null;
+			});
+			set = (set+datasets.length-1) % datasets.length;
+			document.getElementById('year').innerHTML = set + 2006;
+		}
+		function play() {
+			player = setInterval(nextMap, 2000);
+		}
+		function pause() {
+			clearInterval(player);
+		}
+		function labelmap(d) {
+			if (datasets[set][d.id] == null)
+				return "q0-9" ;
+							/*change the Violentcrime if you don't see red*/
+			else if (datasets[set][d.id][categories[category]] == 0)
+				return "q8-9";
+			else
+				return "q3-9";
+		}
+		function idmap(d) {
+			return d.id;//yep
+		}
 
-        function switchCategory(i){
-            category = i;
-            console.log(category);
-            updateMap(function() {
-                return datasets[set] ? labelmap : null;
-            }, function () {
-                return datasets[set] ? idmap : null;
-            });
-        }
+		function switchCategory(i){
+			category = i;
+			console.log(category);
+			updateMap(function() {
+				return datasets[set] ? labelmap : null;
+			}, function () {
+				return datasets[set] ? idmap : null;
+			});
+		}
 
-        function onCountyHover(d) {
-            //console.log(d.id);
-            var c = getCountyTooltipText(d.id);
-            console.log(county[set]);
-            return county[set]["County"];
-        }
+		function onCountyHover(d) {
+			//console.log(d.id);
+			getCountyTooltipText(d.id);
+			console.log(county[set]);
+			return county[set];
+		}
 
-        //TODO KEITH: you can do this. Yes I can!
-        function getCountyTooltipText(FIPS) {
-            //Maybe getCountyName, get each category value, etc, idk.
-            console.log(datasets[set][FIPS]);
-            if (FIPS in datasets[set]){
-	            for (var year = 0; year < datasets.length; year++){
-	            	var iter = function(y){
-		            	county[y]["County"] = datasets[set][FIPS]["County"];
-		            	for (var c = 0; c < categories.length-1; c++) {
-		            		var iter2 = function(c) {
-			            		county[y][categories[c]]=datasets[set][FIPS][categories[c]];
-		            			//console.log(datasets[set][FIPS]);
-			            	}(c);
-			            }
-			            //console.log(county[y]);
-		        	}(year);
-	        	}
-	        }
-        }
-        </script>
-    </body>
+		//TODO KEITH: you can do this. Yes I can!
+		function getCountyTooltipText(FIPS) {
+			//Maybe getCountyName, get each category value, etc, idk.
+			if (FIPS in datasets[set]){
+				for (var year = 0; year < datasets.length; year++){
+					var iter = function(y){
+						county[y]["County"] = datasets[set][FIPS]["County"];
+						for (var c = 0; c < categories.length-1; c++) {
+							var iter2 = function(c) {
+								county[y][categories[c]]=datasets[set][FIPS][categories[c]];
+							}(c);
+						}
+					}(year);
+				}
+			}
+		}
+		</script>
+	</body>
 </html>
