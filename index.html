@@ -371,27 +371,27 @@
 		}
 		function labelmap(d) {
 			var nil_color = [230,230,230];
-			var z_color = [75,25,25];
+			var z_color = [150,150,25];
 			var min_color = [100,50,50];
 			var max_color = [255,100,100];
 			var min = getMin();
 			var max = getMax();
-			var t = (datasets[set][d.id][categories[category]] - min)/(max - min);
 			if (datasets[set][d.id] == null)
 				return "rgb("
 					+nil_color[0]+","
 					+nil_color[1]+","
 					+nil_color[2]+")";
-			else if (t == 0)
+			var t = (datasets[set][d.id][categories[category]] - min)/(max - min);
+			if (t == 0)
 				return "rgb("
 					+z_color[0]+","
 					+z_color[1]+","
 					+z_color[2]+")";
 			else {
 				return "rgb("
-					+(min_color[0]*(1-t)+max_color[0]*t)+","
-					+(min_color[1]*(1-t)+max_color[1]*t)+","
-					+(min_color[2]*(1-t)+max_color[2]*t)+")";
+					+(Number(Math.floor(min_color[0]*(1-t)+max_color[0]*t)))+","
+					+(Number(Math.floor(min_color[1]*(1-t)+max_color[1]*t)))+","
+					+(Number(Math.floor(min_color[2]*(1-t)+max_color[2]*t)))+")";
 			}
 		}
 		function idmap(d) {
