@@ -125,8 +125,8 @@
 						<div style="display:inline-block; float:right;">Max</div>
 					</div>
 					<div>
-						<div style="display:inline-block;"><input id ="MinBox" name="Min" value = "0"/></div>
-						<div style="display:inline-block; float:right;"><input id = "MaxBox" name="Max" value = "0"/></div>
+						<div style="display:inline-block;"><input id ="MinBox" name="Min" value = "0" onfocus="getMin()"/></div>
+						<div style="display:inline-block; float:right;"><input id = "MaxBox" name="Max" value = "0" onclick="getMax()" /></div>
 					</div>
 				</div>
 				<div class = "infobardiv">
@@ -196,7 +196,6 @@
 			.append("g")
 				//.call(d3.behavior.zoom().scaleExtent([1, 10]).on("zoom", zoom))
 			.append("g");
-
 /*
 		var map = d3.select('svg g');
 		map.on('click',function() {
@@ -265,25 +264,46 @@
 			var iter = function (i){
 				var county_counter = 0;
 				d3.csv(data[i], function(csv) {
+					var lastMin = 10000;
 					csv.forEach(function(d) {   // doing this asynch?
 						if (datasets[i][d.idsubid] == null){
 							datasets[i][d.idsubid] = {};
 							datasets[i][d.idsubid]["County"] = d["County"];
 							county_counter++;
 							for (var c = 0; c < categories.length; c++){
+								if(nationals[i][categories[c]+"-max"] == null){
+									nationals[i][categories[c]+"-max"] = 0;
+									nationals[i][categories[c]+"-min"] = 10000; // default large value
+								}
 								var value = Number(d[categories[c]]);
 								if (!isNaN(value)){
 									datasets[i][d.idsubid][categories[c]] = value;
 									nationals[i][categories[c]] += value;
+									if(value > nationals[i][categories[c]+"-max"]){
+										nationals[i][categories[c]+"-max"] = value;
+									}
+									if(value < nationals[i][categories[c]+"-min"]){
+										lastMin = nationals[i][categories[c]+"-min"];
+										nationals[i][categories[c]+"-min"] = value;
+									}
 								}
 							}
 						}
 						else{
 							for (var c = 0; c < categories.length; c++){
 								var value = Number(d[categories[c]]);
-								if (!isNaN(value)){
+								if (!isNaN(value)){ // make sure duplicates are combined before min is updated
+									if(datasets[i][d.idsubid][categories[c]] == nationals[i][categories[c]+"-min"]){
+										nationals[i][categories[c]+"-min"] = lastMin;
+									}
 									datasets[i][d.idsubid][categories[c]] += value;
 									nationals[i][categories[c]] += value;
+									if(datasets[i][d.idsubid][categories[c]] > nationals[i][categories[c]+"-max"]){
+										nationals[i][categories[c]+"-max"] = datasets[i][d.idsubid][categories[c]];
+									}
+									if(datasets[i][d.idsubid][categories[c]] < nationals[i][categories[c]+"-min"]){
+										nationals[i][categories[c]+"-min"] = datasets[i][d.idsubid][categories[c]];
+									}
 								}
 							}
 						}
@@ -332,6 +352,15 @@
 			document.getElementById('year').innerHTML = set + 2006;
 		}
 
+		function getMin(){
+			console.log(nationals[set][categories[category]+"-min"]);
+			return nationals[set][categories[category]+"-min"];
+		}
+		function getMax(){
+			console.log(nationals[set][categories[category]+"-max"]);
+			return nationals[set][categories[category]+"-max"];
+		}
+
 		function play() {
 			if (player == null)
 				player = setInterval(nextMap, 2000);
@@ -345,8 +374,8 @@
 			var z_color = [75,25,25];
 			var min_color = [100,50,50];
 			var max_color = [255,100,100];
-			var min = nationals[set][categories[category] + "-min"];
-			var max = nationals[set][categories[category] + "-max"];
+			var min = getMin();
+			var max = getMax();
 			var t = (datasets[set][d.id][categories[category]] - min)/(max - min);
 			if (datasets[set][d.id] == null)
 				return "rgb("
@@ -371,7 +400,9 @@
 
 		function switchCategory(i){
 			category = i;
-			console.log(category);
+			// console.log(category);
+			// console.log(nationals[set][categories[category]+"-max"]);
+			// console.log(nationals[set][categories[category]+"-min"]);
 			updateMap(function() {
 				return datasets[set] ? labelmap : null;
 			}, function () {

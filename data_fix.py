@@ -3,17 +3,23 @@ import os
 global states
 global extra
 
-def fix_data(src):
+def fix_data(src, startSrc = None):
     old = open(src)
     fips = open("./data/FIPS_national.txt")
+    start = open(startSrc)
     csv = ""
     i = 0
     lines = old.readlines()
     fipsids= fips.readlines()
+    data = start.readlines()
     old.close()
     fips.close()
+    start.close()
+    flag = len(lines[0]) > 11 and not "Motor" in lines[0][11]
     for row in lines:
         row = row.split(',')
+##        if flag:
+##            row = restore_data(row,data)
         row = update_row(row,fipsids)
         for x in row:
             csv += str(x)+','
@@ -26,11 +32,22 @@ def fix_data(src):
 
 def update_row(row,filedata):
     row = row[:-1]
-    row = remove_nums(row)
+    #row = remove_nums(row)
     #row = agg_vc(row)
     #row = fix_dash(row)
-    row = add_fips(row,filedata)
+    #row = add_fips(row,filedata)
     return row
+
+def restore_data(row,source):
+    line0 = remove_nums(source[0].split(','));
+    if row[1] == "County":
+        return row[:11]+["Motor vehicle theft"]+row[11:]
+    for line in source:
+        line = remove_nums(line.split(','))
+        if row[1] == line[1]:
+            return row[:11]+[line[10]]+row[11:]
+    print (row[:11]+['']+row[11:])
+    return row[:11]+['']+row[11:]
 
 def add_fips(row,data):
     fipsid = ''
@@ -94,5 +111,7 @@ states = {"ALABAMA":"AL","ALASKA":"AK","ARIZONA":"AZ","ARKANSAS":"AR","CALIFORNI
 
 for root,dirs,files in os.walk('.'):
     for name in files:
-        if 'data' in root and '.csv' in name:
-            fix_data(os.path.join(root,name))
+        if 'data' in root and '.csv' in name and 'Tb_10' in name:
+            second = name[-6:-4]+"tbl10.csv"
+            #print(name,second)
+            fix_data(os.path.join(root,name),os.path.join(root,second))

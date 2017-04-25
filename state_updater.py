@@ -1,10 +1,11 @@
 from xlrd import open_workbook
+import os
 
 def xls_to_csv(srcfile,destfolder):
     book = open_workbook(srcfile)  # open workbook
     sheet = book.sheet_by_index(0)  # select first sheet
     
-    destfolder = destfolder[:-1]+destfolder[-1].replace('/','')+'/'+srcfile.split(sep='/')[-1][:-3]+'csv'
+    destfolder = destfolder[:-1]+destfolder[-1].replace('/','')+'/'+srcfile.split(sep='\\')[-1][:-3]+'csv'
     wfile = open(destfolder,'w')   # open new csv file
     
     if sheet.cell_value(3,0) == '' or sheet.cell_value(3,1) != '':
@@ -32,8 +33,7 @@ def write_line(wfile, row):
             wfile.write(x+',')
     wfile.write('\n')
             
-while(True):
-	src = input("src: ")
-	print("1 "+src)
-	src = src.replace('\"','')
-	xls_to_csv(src,"./data")
+for root,dirs,files in os.walk('.'):
+    for name in files:
+        if 'xlsFiles' in root:
+           xls_to_csv(os.path.join(root,name),"data")
