@@ -1,3 +1,5 @@
+import os
+
 global states
 global extra
 
@@ -24,7 +26,7 @@ def fix_data(src):
 
 def update_row(row,filedata):
     row = row[:-1]
-    #row = remove_nums(row)
+    row = remove_nums(row)
     #row = agg_vc(row)
     #row = fix_dash(row)
     row = add_fips(row,filedata)
@@ -65,6 +67,7 @@ def fix_dash(row):
     return row
     
 def remove_nums(row):
+    row[0] = row[0].strip();
     if row[0][-1].isdigit():
         row[0] = row[0][:-1]
     if row[1][-1].isdigit():
@@ -88,8 +91,8 @@ states = {"ALABAMA":"AL","ALASKA":"AK","ARIZONA":"AZ","ARKANSAS":"AR","CALIFORNI
                     "SOUTH DAKOTA":"SD","TENNESSEE":"TN","TEXAS":"TX","UTAH":"UT","VERMONT":"VT",
                     "VIRGINIA":"VA","WASHINGTON":"WA","WEST VIRGINIA": "WV","WISCONSIN":"WI","WYOMING":"WY"}
 
-src = input("src: ")
-while src != '':
-    src = src.replace('\"','')
-    fix_data(src)
-    src = input("src: ")
+
+for root,dirs,files in os.walk('.'):
+    for name in files:
+        if 'data' in root and '.csv' in name:
+            fix_data(os.path.join(root,name))

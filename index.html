@@ -143,6 +143,20 @@
 
         //source
         // https://strongriley.github.io/d3/ex/choropleth.html
+        var categories = [
+            "Violent crime",
+            "Murder and nonnegligent manslaughter",
+            "Rape(revised definition)1",
+            "Rape(legacy definition)2",
+            "Robbery",
+            "Aggravated assault",
+            "Property crime",
+            "Burglary",
+            "Larceny-theft",
+            "Motor vehicle theft",
+        ];
+        var category = 0;
+
         var data = ["./data/Tb_10_Offenses_by_Counties_2006.csv",
             "./data/Tb_10_Offenses_by_Counties_2007.csv",
             "./data/Tb_10_Offenses_by_Counties_2008.csv",
@@ -155,23 +169,20 @@
             "./data/Tb_10_Offenses_by_Counties_2015.csv"]; // loaded asynchronously later.
         var set = 0;
         var datasets = [{},{},{},{},{},{},{},{},{},{}];
+        var nationals = [{},{},{},{},{},{},{},{},{},{}];
+        var county = [{},{},{},{},{},{},{},{},{},{}];
+        for (var i = 0; i < nationals.length; i++){
+	        for (var c = 0; c < categories.length; c++){
+	        	var iter = function(i,c) {
+	        		nationals[i][categories[c]] = 0;
+	        	}(i,c);
+	        }
+	    }
 
         var margin = {top: -5, right: -5, bottom: -5, left: -5},
             width = 875 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
-        var categories = [
-            "Violent crime",
-            "Murder and nonnegligent manslaughter",
-            "Rape(revised definition)1",
-            "Rape(legacy definition)2",
-            "Robbery",
-            "Aggravated assault",
-            "Property crime",
-            "Burglary",
-            "Larceny-theft",
-            "Motor vehicle theft"
-        ];
-        var category = 0;
+        
 
         var path = d3.geo
             .path();
@@ -181,17 +192,18 @@
             .append("svg:svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
-                .attr("transform","translate("+-95+","+0+")")
+                .attr("transform","translate("+-80+","+0+")")
             .append("g")
                 //.call(d3.behavior.zoom().scaleExtent([1, 10]).on("zoom", zoom))
             .append("g");
 
+/*
         var map = d3.select('svg g');
         map.on('click',function() {
             console.log('clicked');
             nextMap();
         });
-
+*/
         svg.append("rect")
             .attr("class", "overlay")
             .attr("width", width)
@@ -249,26 +261,34 @@
                         .append("svg:path")
                             .attr("d", path);
         });
-
         for (var i = 0; i < data.length; i++){
             var iter = function (i){
+            	var county_counter = 0;
                 d3.csv(data[i], function(csv) {
                     csv.forEach(function(d) {   // doing this asynch?
-                        if (datasets[i][d.idsubid] == null) {
-                            datasets[i][d.idsubid] = d;
-                        }
-                        else { //for adding police departments
-                            for (var c = 0; c < categories.length; c++)
-                                datasets[i][d.idsubid][categories[c]] += d[categories[c]];
+	            		if (datasets[i][d.idsubid] == null){
+	            			datasets[i][d.idsubid] = {};
+	                        datasets[i][d.idsubid]["County"] = d["County"];
+	                        county_counter++;
+	            		}
+	                    for (var c = 0; c < categories.length; c++){
+                        		var value = Number(d[categories[c]]);
+                        		if (!isNaN(value)){
+	                        		datasets[i][d.idsubid][categories[c]] += value;
+	                        		nationals[i][categories[c]] += value;
+                        		}
                         }
                     });
-                    //console.log(i);
-                    //console.log(datasets[i]);
-                });
+	                for (var c = 0; c < categories.length; c++){
+	                		nationals[i][categories[c]] /= county_counter;
+	                }
+                });              
             }(i);
         }
-
         svg.call(tip);
+
+        console.log(nationals[set]);
+        console.log(datasets[set]);
 
         //i=0;
         // counties.selectAll("path")
@@ -335,16 +355,30 @@
         }
 
         function onCountyHover(d) {
-            console.log(d);
-            console.log(d.id);
-            return getCountyTooltipText(d.id);
+            //console.log(d.id);
+            var c = getCountyTooltipText(d.id);
+            console.log(county[set]);
+            return county[set]["County"];
         }
 
-        //TODO KEITH: you can do this
+        //TODO KEITH: you can do this. Yes I can!
         function getCountyTooltipText(FIPS) {
             //Maybe getCountyName, get each category value, etc, idk.
-            console.log(typeof(""+FIPS));
-            return ""+FIPS;
+            console.log(datasets[set][FIPS]);
+            if (FIPS in datasets[set]){
+	            for (var year = 0; year < datasets.length; year++){
+	            	var iter = function(y){
+		            	county[y]["County"] = datasets[set][FIPS]["County"];
+		            	for (var c = 0; c < categories.length-1; c++) {
+		            		var iter2 = function(c) {
+			            		county[y][categories[c]]=datasets[set][FIPS][categories[c]];
+		            			//console.log(datasets[set][FIPS]);
+			            	}(c);
+			            }
+			            //console.log(county[y]);
+		        	}(year);
+	        	}
+	        }
         }
         </script>
     </body>
