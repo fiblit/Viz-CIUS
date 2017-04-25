@@ -236,7 +236,6 @@
 			.html(function(d) {return onCountyHover(d);});
 
 		var player = null;
-
 		d3.json("./data/us-counties.json", function(json) {
 			counties
 				.selectAll("path")
@@ -279,10 +278,11 @@
 								if (!isNaN(value)){
 									datasets[i][d.idsubid][categories[c]] = value;
 									nationals[i][categories[c]] += value;
+
 									if(value > nationals[i][categories[c]+"-max"]){
 										nationals[i][categories[c]+"-max"] = value;
 									}
-									if(value < nationals[i][categories[c]+"-min"]){
+									if(value > 0 && value < nationals[i][categories[c]+"-min"]){
 										lastMin = nationals[i][categories[c]+"-min"];
 										nationals[i][categories[c]+"-min"] = value;
 									}
@@ -298,10 +298,12 @@
 									}
 									datasets[i][d.idsubid][categories[c]] += value;
 									nationals[i][categories[c]] += value;
-									if(datasets[i][d.idsubid][categories[c]] > nationals[i][categories[c]+"-max"]){
+									var sum = datasets[i][d.idsubid][categories[c]];
+
+									if(sum > nationals[i][categories[c]+"-max"]){
 										nationals[i][categories[c]+"-max"] = datasets[i][d.idsubid][categories[c]];
 									}
-									if(datasets[i][d.idsubid][categories[c]] < nationals[i][categories[c]+"-min"]){
+									if(sum > 0 && sum < nationals[i][categories[c]+"-min"]){
 										nationals[i][categories[c]+"-min"] = datasets[i][d.idsubid][categories[c]];
 									}
 								}
@@ -410,21 +412,23 @@
 			});
 		}
 
+		var validCounty;
 		function onCountyHover(d) {
 			//console.log(d.id);
 			getCountyTooltipText(d.id);
-			console.log(county[set]);
-			var http = "<p style='margin:1px;padding:1px;text-decoration:underline;'>County: "+county[set]["County"] + "</p>";
-			//console.log(http);
-			for (var c = 0; c < categories.length; c++)
-				http += "<p style='margin:1px;padding:1px;'>"+categories[c]+": " + county[set][categories[c]] + "</p>";
-			return http;
+			if (validCounty){
+				var http = "<p style='margin:1px;padding:1px;text-decoration:underline;'>"+county[set]["County"]+"</p>";
+				for (var c = 0; c < categories.length; c++)
+					http += "<p style='margin:1px;padding:1px;'>"+categories[c]+": " + county[set][categories[c]] + "</p>";
+				return http;
+			}
 		}
 
 		//TODO KEITH: you can do this. Yes I can!
 		function getCountyTooltipText(FIPS) {
 			//Maybe getCountyName, get each category value, etc, idk.
 			if (FIPS in datasets[set]){
+				validCounty = true;
 				for (var year = 0; year < datasets.length; year++){
 					var iter = function(y){
 						county[y]["County"] = datasets[set][FIPS]["County"];
@@ -435,6 +439,9 @@
 						}
 					}(year);
 				}
+			}
+			else{
+				validCounty = false;
 			}
 		}
 		</script>
