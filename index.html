@@ -91,8 +91,13 @@
 		</style>
 	</head>
 	<body data-gr-c-s-loaded="true">
-		<div style="margin-left:100px;margin-top:50px;display:inline-block;" id="main">
-            <div id="option">
+		<div style="
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -48%); width: 1200px; border: 3px solid black; padding: 10px;display:inline-block;" id="main">
+            <div id="option" style = "margin: 0px 0px 10px 0px;">
                 <!-- there is a way to increment this, but I don't care to look it up right now -->
                 <!-- TODO: add a tooltip "definition" with these to explain what they are -->
                 <input name="0_btn" type="button" value="Violent Crime" onclick="switchCategory(0)"/>
@@ -106,8 +111,8 @@
                 <input name="8_btn" type="button" value="Larceny-theft" onclick="switchCategory(8)"/>
                 <input name="9_btn" type="button" value="Motor Vehicle Theft" onclick="switchCategory(9)"/>
             </div>
-            <div style="border:solid 1px black;float:right; width: 200px;">
-				<div>
+            <div style="border:solid 1px black;float:right; width: 300px;padding: 5px;">
+				<div style="border:solid 1px black; padding: 2px; margin: 2px 2px 5px 2px;">
 					<div>Year: <span id="year">2006</span></div>
 					<div>
 						<input name="next" type="button" value="<" onclick="prevMap()"/>
@@ -116,21 +121,34 @@
 						<input name="next" type="button" value="||" onclick="pause()"/>
 					</div>
 				</div>
-				<div>
+				<div style="border:solid 1px black; padding: 2px; margin: 5px 2px;">
 					<div>National Metrics</div>
                     <div>Min|Avg|Max</div>
-                    <div id="nat-data">(minv mincolor)|(avgv avgcolor)|(maxv maxcolor)</div>
+                    <div id="nat-data">(minv minc)|(avgv avgc)|(maxv maxc)</div>
 				</div>
-				<div>
-					<div>Scale</div>
-				    <div style="display:inline-block; float:right;"><input name="setminmax" type="button" value="Reset Range" onclick="updateSetMinMax()"></div>
-					<div>
-						<div style="display:inline-block;">Min</div>
-						<div style="display:inline-block; float:right;">Max</div>
+				<div style="border:solid 1px black; padding: 2px; margin: 5px 2px 2px 2px;">
+                    <div  style="display:block; padding: 2px 0px;">
+                        <div style="display:inline-block;">Scale</div>
+                    </div>
+                    <div  style="display:block; padding: 2px 0px;">
+                        <div style="display:inline-block;"><input id="resetminmax-this" type="button" value="Reset for 2006" onclick="resetSetMinMax()"></div>
+                        <div style="display:inline-block;"><input id="resetminmax-all" type="button" value="Reset for All Years" onclick="resetSetMinMaxAll()"></div>
+                    </div>                                
+                    <div  style="display:block; padding: 2px 0px;">
+                        <div style="display:inline-block;"><input id="updateminmax-this" type="button" value="Update for 2006" onclick="updateSetMinMax()"></div>
+                        <div style="display:inline-block;"><input id="updateminmax-all" type="button" value="Update for All Years" onclick="updateSetMinMaxAll()"></div>
+                    </div>
+					<div style="display:block; padding: 2px 0px;">
+                        <div>
+						    <div style="display:inline-block;">Min</div>
+						    <div style="display:inline-block; float:right;"><input id="MinBox" name="Min" value = "0" size="10"/></div>
+                        </div>
 					</div>
-					<div>
-						<div style="display:inline-block;"><input id ="MinBox" name="Min" value = "0"/></div>
-						<div style="display:inline-block; float:right;"><input id = "MaxBox" name="Max" value = "0" /></div>
+					<div style="display:block; padding: 4px 0px;">
+                        <div>
+						    <div style="display:inline-block;">Max</div>
+						    <div style="display:inline-block; float:right;"><input id="MaxBox" name="Max" value = "0" size="10"/></div>
+                        </div>
 					</div>
 				</div>
             </div>
@@ -304,10 +322,10 @@
 					for (var c = 0; c < categories.length; c++){
 						nationals[i][categories[c]] /= county_counter;
 					}
-				});			  
+		        updateNational(); 
+				});
 			}(i);
 		}
-		updateNational();
 		svg.call(tip);
 
 		//the labeler might change if we do some really funky stuff with the selections
@@ -320,37 +338,60 @@
 				.attr("d", path)
 				.on("mouseover", tip.show)
 				.on("mouseout", tip.hide);
-			updateNational();
 		}
+        function std_updateMap() {
+			updateMap(function() {
+				return datasets[set] ? labelmap : null;
+			}, function () {
+				return datasets[set] ? idmap : null;
+			});
+			updateNational();
+            updateTimeCounters();
+        }
 		function updateNational() {
 			document.getElementById("MinBox").value = getSetMin();
 			document.getElementById("MaxBox").value = getSetMax();
 		}
+        function updateTimeCounters() {
+            document.getElementById('resetminmax-this').value = "Reset for " + (set + 2006);
+            document.getElementById('updateminmax-this').value = "Update for " + (set + 2006);
+			document.getElementById('year').innerHTML = set + 2006;
+        }
 		function nextMap() {
 			set = (set+1) % datasets.length;
-			updateMap(function() {
-				return datasets[set] ? labelmap : null;
-			}, function () {
-				return datasets[set] ? idmap : null;
-			});
-			document.getElementById('year').innerHTML = set + 2006;
+            std_updateMap();
 		}
 		function prevMap() {
 			set = (set+datasets.length-1) % datasets.length;
-			updateMap(function() {
-				return datasets[set] ? labelmap : null;
-			}, function () {
-				return datasets[set] ? idmap : null;
-			});
-			document.getElementById('year').innerHTML = set + 2006;
+            std_updateMap();
 		}
 
+        function resetSetMinMax() {
+            nationals[set][categories[category]+"-set-min"] = undefined;
+            nationals[set][categories[category]+"-set-max"] = undefined;
+            std_updateMap();
+        }
 		function updateSetMinMax() {
 			nationals[set][categories[category]+"-set-min"] = document.getElementById('MinBox').value;
 			nationals[set][categories[category]+"-set-max"] = document.getElementById('MaxBox').value;
+            std_updateMap();
+		}
+        function resetSetMinMaxAll() {
+            for (var i = 0; i < nationals.length; i++) {
+			    nationals[i][categories[category]+"-set-min"] = undefined;
+			    nationals[i][categories[category]+"-set-max"] = undefined;
+            }
+            std_updateMap();
+        }
+        function updateSetMinMaxAll() {
+            for (var i = 0; i < nationals.length; i++) {
+			    nationals[i][categories[category]+"-set-min"] = document.getElementById('MinBox').value;
+			    nationals[i][categories[category]+"-set-max"] = document.getElementById('MaxBox').value;
+            }
+            std_updateMap();
 		}
 		function getSetMin() {
-			if (nationals[set][categories[category]+"-set-min"] != null)
+			if (undefined != nationals[set][categories[category]+"-set-min"])
 				return nationals[set][categories[category]+"-set-min"];
 			else
 				return nationals[set][categories[category]+"-min"];
@@ -360,7 +401,7 @@
 		}
 
 		function getSetMax() {
-			if (nationals[set][categories[category]+"-set-max"] != null)
+			if (undefined != nationals[set][categories[category]+"-set-max"])
 				return nationals[set][categories[category]+"-set-max"];
 			else
 				return nationals[set][categories[category]+"-max"];
@@ -377,8 +418,13 @@
 			clearInterval(player);
 			player = null;
 		}
+        function switchCategory(i){
+			category = i;
+            std_updateMap();
+		}
+
 		function labelmap(d) {
-			var nil_color = [230,230,230];
+			var nil_color = [0,0,0];
 			var z_color = [50,100,100];
 			var min_color = [50,50,100];
 			var max_color = [100,100,255];
@@ -390,7 +436,11 @@
 					+nil_color[1]+","
 					+nil_color[2]+")";
 			var t = (datasets[set][d.id][categories[category]] - min)/(max - min);
-			if (t == 0)
+            if (t > 1)
+                t = 1;
+            else if (t < 0)
+                t = 0;
+			if (datasets[set][d.id][categories[category]] == 0)
 				return "rgb("
 					+z_color[0]+","
 					+z_color[1]+","
@@ -404,15 +454,6 @@
 		}
 		function idmap(d) {
 			return d.id;//yep
-		}
-
-		function switchCategory(i){
-			category = i;
-			updateMap(function() {
-				return datasets[set] ? labelmap : null;
-			}, function () {
-				return datasets[set] ? idmap : null;
-			});
 		}
 
 		var validCounty;
