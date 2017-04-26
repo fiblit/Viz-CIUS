@@ -88,6 +88,21 @@
 				top: 100%;
 				left: 0;
 			}
+
+            .cap {
+                background: white;
+                color: black;
+            }
+
+            input[type="button"]:hover {
+                background: #ccc;
+                transform: translate(-1px, -2px);
+                color: black;
+            }
+            input[type="button"] {
+                background: white;
+                color: black;
+            }
 		</style>
 	</head>
 	<body data-gr-c-s-loaded="true">
@@ -117,8 +132,8 @@
 					<div>
 						<input name="next" type="button" value="<" onclick="prevMap()"/>
 						<input name="next" type="button" value=">" onclick="nextMap()"/>
-						<input name="next" type="button" value="|>" onclick="play()"/>
-						<input name="next" type="button" value="||" onclick="pause()"/>
+						<input name="next" type="button" value="&#9655;" onclick="play()"/>
+						<input name="next" type="button" value="&#8214;" onclick="pause()"/>
 					</div>
 				</div>
 				<div style="border:solid 1px black; padding: 2px; margin: 5px 2px;">
@@ -272,7 +287,7 @@
 			var iter = function (i){
 				var county_counter = 0;
 				d3.csv(data[i], function(csv) {
-					var lastMin = 10000;
+					var lastMin = Infinity;
 					csv.forEach(function(d) {   // doing this asynch?
 						if (datasets[i][d.idsubid] == null){
 							datasets[i][d.idsubid] = {};
@@ -280,8 +295,8 @@
 							county_counter++;
 							for (var c = 0; c < categories.length; c++){
 								if(nationals[i][categories[c]+"-max"] == null){
-									nationals[i][categories[c]+"-max"] = 0;
-									nationals[i][categories[c]+"-min"] = 10000; // default large value
+									nationals[i][categories[c]+"-max"] = -Infinity;
+									nationals[i][categories[c]+"-min"] = Infinity; // default large value
 								}
 								var value = Number(d[categories[c]]);
 								if (!isNaN(value)){
@@ -391,20 +406,28 @@
             std_updateMap();
 		}
 		function getSetMin() {
+            var r;
 			if (undefined != nationals[set][categories[category]+"-set-min"])
-				return nationals[set][categories[category]+"-set-min"];
+				r = nationals[set][categories[category]+"-set-min"];
 			else
-				return nationals[set][categories[category]+"-min"];
+				r = nationals[set][categories[category]+"-min"];
+            if (r == Infinity || r == -Infinity)
+                r = undefined;
+            return r;
 		}
 		function getMin(){
 			return nationals[set][categories[category]+"-min"];
 		}
 
 		function getSetMax() {
+            var r;
 			if (undefined != nationals[set][categories[category]+"-set-max"])
-				return nationals[set][categories[category]+"-set-max"];
+				r = nationals[set][categories[category]+"-set-max"];
 			else
-				return nationals[set][categories[category]+"-max"];
+				r = nationals[set][categories[category]+"-max"];
+            if (r == Infinity || r == -Infinity)
+                r = undefined;
+            return r;
 		}
 		function getMax(){
 			return nationals[set][categories[category]+"-max"];
@@ -437,9 +460,9 @@
 					+nil_color[2]+")";
 			var t = (datasets[set][d.id][categories[category]] - min)/(max - min);
             if (t > 1)
-                t = 1;
+                t = 1.5;
             else if (t < 0)
-                t = 0;
+                t = -0.3;
 			if (datasets[set][d.id][categories[category]] == 0)
 				return "rgb("
 					+z_color[0]+","
