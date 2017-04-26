@@ -429,7 +429,7 @@
                 var min = getSetMin(c);
                 var avg = Math.floor(nationals[set][categories[c]]);
                 var max = getSetMax(c);
-                if (min == Infinity || max == -Infinity) {
+                if (min == Infinity || max == -Infinity || min == undefined || max == undefined) {
                     min = max = avg = "n\\a";
                 }
 
