@@ -119,7 +119,10 @@
 					</div>
 				</div>
 				<div class = "infobardiv">
-					<div>Scale</div>
+					<div>
+						<div style="display:inline-block;">Scale</div>
+						<div style="display:inline-block; float:right;"><input name="setminmax" type="button" value="Reset Range" onclick="updateSetMinMax()"></div>
+					</div>
 					<div>
 						<div style="display:inline-block;">Min</div>
 						<div style="display:inline-block; float:right;">Max</div>
@@ -326,8 +329,8 @@
 			updateNational();
 		}
 		function updateNational() {
-			document.getElementById("MinBox").value = getMin();
-			document.getElementById("MaxBox").value = getMax();
+			document.getElementById("MinBox").value = getSetMin();
+			document.getElementById("MaxBox").value = getSetMax();
 		}
 		function nextMap() {
 			set = (set+1) % datasets.length;
@@ -348,8 +351,25 @@
 			document.getElementById('year').innerHTML = set + 2006;
 		}
 
+		function updateSetMinMax() {
+			nationals[set][categories[category]+"-set-min"] = document.getElementById('MinBox').value;
+			nationals[set][categories[category]+"-set-max"] = document.getElementById('MaxBox').value;
+		}
+		function getSetMin() {
+			if (nationals[set][categories[category]+"-set-min"] != null)
+				return nationals[set][categories[category]+"-set-min"];
+			else
+				return nationals[set][categories[category]+"-min"];
+		}
 		function getMin(){
 			return nationals[set][categories[category]+"-min"];
+		}
+
+		function getSetMax() {
+			if (nationals[set][categories[category]+"-set-max"] != null)
+				return nationals[set][categories[category]+"-set-max"];
+			else
+				return nationals[set][categories[category]+"-max"];
 		}
 		function getMax(){
 			return nationals[set][categories[category]+"-max"];
@@ -368,8 +388,8 @@
 			var z_color = [50,100,100];
 			var min_color = [50,50,100];
 			var max_color = [100,100,255];
-			var min = getMin();
-			var max = getMax();
+			var min = getSetMin();
+			var max = getSetMax();
 			if (datasets[set][d.id] == null)
 				return "rgb("
 					+nil_color[0]+","
