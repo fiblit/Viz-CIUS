@@ -310,6 +310,7 @@
 				});			  
 			}(i);
 		}
+		updateNational();
 		svg.call(tip);
 
 		//the labeler might change if we do some really funky stuff with the selections
@@ -322,6 +323,11 @@
 				.attr("d", path)
 				.on("mouseover", tip.show)
 				.on("mouseout", tip.hide);
+			updateNational();
+		}
+		function updateNational() {
+			document.getElementById("MinBox").value = getMin();
+			document.getElementById("MaxBox").value = getMax();
 		}
 		function nextMap() {
 			set = (set+1) % datasets.length;
@@ -359,9 +365,9 @@
 		}
 		function labelmap(d) {
 			var nil_color = [230,230,230];
-			var z_color = [150,150,25];
-			var min_color = [100,50,50];
-			var max_color = [255,100,100];
+			var z_color = [50,100,100];
+			var min_color = [50,50,100];
+			var max_color = [100,100,255];
 			var min = getMin();
 			var max = getMax();
 			if (datasets[set][d.id] == null)
