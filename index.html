@@ -125,8 +125,8 @@
 						<div style="display:inline-block; float:right;">Max</div>
 					</div>
 					<div>
-						<div style="display:inline-block;"><input id ="MinBox" name="Min" value = "0" onfocus="getMin()"/></div>
-						<div style="display:inline-block; float:right;"><input id = "MaxBox" name="Max" value = "0" onclick="getMax()" /></div>
+						<div style="display:inline-block;"><input id ="MinBox" name="Min" value = "0"/></div>
+						<div style="display:inline-block; float:right;"><input id = "MaxBox" name="Max" value = "0" /></div>
 					</div>
 				</div>
 				<div class = "infobardiv">
@@ -196,13 +196,7 @@
 			.append("g")
 				//.call(d3.behavior.zoom().scaleExtent([1, 10]).on("zoom", zoom))
 			.append("g");
-/*
-		var map = d3.select('svg g');
-		map.on('click',function() {
-			console.log('clicked');
-			nextMap();
-		});
-*/
+
 		svg.append("rect")
 			.attr("class", "overlay")
 			.attr("width", width)
@@ -318,12 +312,6 @@
 		}
 		svg.call(tip);
 
-		//i=0;
-		// counties.selectAll("path")
-		//		 .attr("class",datasets[set] ? labelmap : null)
-		//		 .attr("d", path)
-		//var mytimer = setInterval(updateMap,10000);
-
 		//the labeler might change if we do some really funky stuff with the selections
 		//see this for ideas on transitions... http://bl.ocks.org/d3noob/7030f35b72de721622b8
 		//idk, d3 is really really weird
@@ -336,30 +324,28 @@
 				.on("mouseout", tip.hide);
 		}
 		function nextMap() {
+			set = (set+1) % datasets.length;
 			updateMap(function() {
 				return datasets[set] ? labelmap : null;
 			}, function () {
 				return datasets[set] ? idmap : null;
 			});
-			set = (set+1) % datasets.length;
 			document.getElementById('year').innerHTML = set + 2006;
 		}
 		function prevMap() {
+			set = (set+datasets.length-1) % datasets.length;
 			updateMap(function() {
 				return datasets[set] ? labelmap : null;
 			}, function () {
 				return datasets[set] ? idmap : null;
 			});
-			set = (set+datasets.length-1) % datasets.length;
 			document.getElementById('year').innerHTML = set + 2006;
 		}
 
 		function getMin(){
-			console.log(nationals[set][categories[category]+"-min"]);
 			return nationals[set][categories[category]+"-min"];
 		}
 		function getMax(){
-			console.log(nationals[set][categories[category]+"-max"]);
 			return nationals[set][categories[category]+"-max"];
 		}
 
@@ -402,9 +388,6 @@
 
 		function switchCategory(i){
 			category = i;
-			// console.log(category);
-			// console.log(nationals[set][categories[category]+"-max"]);
-			// console.log(nationals[set][categories[category]+"-min"]);
 			updateMap(function() {
 				return datasets[set] ? labelmap : null;
 			}, function () {
@@ -414,7 +397,6 @@
 
 		var validCounty;
 		function onCountyHover(d) {
-			//console.log(d.id);
 			getCountyTooltipText(d.id);
 			if (validCounty){
 				var http = "<p style='margin:1px;padding:1px;text-decoration:underline;'>"+county[set]["County"]+"</p>";
@@ -426,7 +408,6 @@
 
 		//TODO KEITH: you can do this. Yes I can!
 		function getCountyTooltipText(FIPS) {
-			//Maybe getCountyName, get each category value, etc, idk.
 			if (FIPS in datasets[set]){
 				validCounty = true;
 				for (var year = 0; year < datasets.length; year++){
