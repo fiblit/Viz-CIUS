@@ -114,6 +114,19 @@
                 text-align: left;
                 padding: 1px;
             }
+
+            #min-block {
+                background: rgb(50,50,100);
+            }
+            #max-block {
+                background: rgb(100,100,255);
+            }
+            #nil-block {
+                background: rgb(0,0,0);
+            }
+            #zero-block {
+                background: rgb(50,100,100);
+            }
 		</style>
 	</head>
 	<body data-gr-c-s-loaded="true">
@@ -175,14 +188,24 @@
                         <div style="display:inline-block;"><input id="updateminmax-all" type="button" value="Update for All Years" onclick="updateSetMinMaxAll()"></div>
                     </div>
 					<div style="display:block; padding: 2px 0px;">
-                        <div>
-						    <div style="display:inline-block;">Min</div>
+                        <div id="nil-block">
+						    <div class="cap" style="display:inline-block;">Undefined</div>
+                        </div>
+					</div>
+					<div style="display:block; padding: 2px 0px;">
+                        <div id="zero-block">
+						    <div class="cap" style="display:inline-block;">Zero</div>
+                        </div>
+					</div>
+					<div style="display:block; padding: 2px 0px;">
+                        <div id="min-block">
+						    <div class="cap" style="display:inline-block;">Min</div>
 						    <div style="display:inline-block; float:right;"><input id="MinBox" name="Min" value = "0" size="10"/></div>
                         </div>
 					</div>
 					<div style="display:block; padding: 4px 0px;">
-                        <div>
-						    <div style="display:inline-block;">Max</div>
+                        <div id="max-block">
+						    <div class="cap" style="display:inline-block;">Max</div>
 						    <div style="display:inline-block; float:right;"><input id="MaxBox" name="Max" value = "0" size="10"/></div>
                         </div>
 					</div>
