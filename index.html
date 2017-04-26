@@ -91,26 +91,24 @@
 		</style>
 	</head>
 	<body data-gr-c-s-loaded="true">
-		<div id="option">
-			<!-- there is a way to increment this, but I don't care to look it up right now -->
-			<!-- TODO: add a tooltip "definition" with these to explain what they are -->
-			<input name="0_btn" type="button" value="Violent Crime" onclick="switchCategory(0)"/>
-			<input name="1_btn" type="button" value="Murder" onclick="switchCategory(1)"/>
-			<input name="2_btn" type="button" value="Rape (revised definition)" onclick="switchCategory(2)"/>
-			<input name="3_btn" type="button" value="Rape (legacy definition)" onclick="switchCategory(3)"/>
-			<input name="4_btn" type="button" value="Robbery" onclick="switchCategory(4)"/>
-			<input name="5_btn" type="button" value="Aggravated Assault" onclick="switchCategory(5)"/>
-			<input name="6_btn" type="button" value="Property Crime" onclick="switchCategory(6)"/>
-			<input name="7_btn" type="button" value="Burglary" onclick="switchCategory(7)"/>
-			<input name="8_btn" type="button" value="Larceny-theft" onclick="switchCategory(8)"/>
-			<input name="9_btn" type="button" value="Motor Vehicle Theft" onclick="switchCategory(9)"/>
-		</div>
-
-		<div id = "main">
-			<div id = "svg-go-here"></div>
-			<div style = "display: inline-block;">
-				<div class = "infobardiv">
-					<div>Year: <span id = "year">2006</span></div>
+		<div style="margin-left:100px;margin-top:50px;display:inline-block;" id="main">
+            <div id="option">
+                <!-- there is a way to increment this, but I don't care to look it up right now -->
+                <!-- TODO: add a tooltip "definition" with these to explain what they are -->
+                <input name="0_btn" type="button" value="Violent Crime" onclick="switchCategory(0)"/>
+                <input name="1_btn" type="button" value="Murder" onclick="switchCategory(1)"/>
+                <input name="2_btn" type="button" value="Rape (revised definition)" onclick="switchCategory(2)"/>
+                <input name="3_btn" type="button" value="Rape (legacy definition)" onclick="switchCategory(3)"/>
+                <input name="4_btn" type="button" value="Robbery" onclick="switchCategory(4)"/>
+                <input name="5_btn" type="button" value="Aggravated Assault" onclick="switchCategory(5)"/>
+                <input name="6_btn" type="button" value="Property Crime" onclick="switchCategory(6)"/>
+                <input name="7_btn" type="button" value="Burglary" onclick="switchCategory(7)"/>
+                <input name="8_btn" type="button" value="Larceny-theft" onclick="switchCategory(8)"/>
+                <input name="9_btn" type="button" value="Motor Vehicle Theft" onclick="switchCategory(9)"/>
+            </div>
+            <div style="border:solid 1px black;float:right; width: 200px;">
+				<div>
+					<div>Year: <span id="year">2006</span></div>
 					<div>
 						<input name="next" type="button" value="<" onclick="prevMap()"/>
 						<input name="next" type="button" value=">" onclick="nextMap()"/>
@@ -118,8 +116,14 @@
 						<input name="next" type="button" value="||" onclick="pause()"/>
 					</div>
 				</div>
-				<div class = "infobardiv">
+				<div>
+					<div>National Metrics</div>
+                    <div>Min|Avg|Max</div>
+                    <div id="nat-data">(minv mincolor)|(avgv avgcolor)|(maxv maxcolor)</div>
+				</div>
+				<div>
 					<div>Scale</div>
+                    <input name="9_btn" type="button" value="Motor Vehicle Theft" onclick="switchCategory(9)"/>
 					<div>
 						<div style="display:inline-block;">Min</div>
 						<div style="display:inline-block; float:right;">Max</div>
@@ -129,14 +133,8 @@
 						<div style="display:inline-block; float:right;"><input id = "MaxBox" name="Max" value = "0" /></div>
 					</div>
 				</div>
-				<div class = "infobardiv">
-					<div>National Values</div>
-				</div>
-			</div>
-		</div>
-
-		<div id = "county-tooltip">
-			
+            </div>
+			<div style="margin-left:0px;"><div id="svg-go-here"></div></div>
 		</div>
 
 		<script type="text/javascript">
@@ -192,7 +190,6 @@
 			.append("svg:svg")
 				.attr("width", width + margin.left + margin.right)
 				.attr("height", height + margin.top + margin.bottom)
-				.attr("transform","translate("+-80+","+0+")")
 			.append("g")
 				//.call(d3.behavior.zoom().scaleExtent([1, 10]).on("zoom", zoom))
 			.append("g");
@@ -405,7 +402,7 @@
 		function onCountyHover(d) {
 			getCountyTooltipText(d.id);
 			if (validCounty){
-				var http = "<p style='margin:1px;padding:1px;text-decoration:underline;'>"+county[set]["County"]+"</p>";
+				var http = "<p style='margin:1px;padding:1px;'><span style='text-decoration:underline;'>"+county[set]["County"]+"</span> County</p>";
 				for (var c = 0; c < categories.length; c++)
 					http += "<p style='margin:1px;padding:1px;'>"+categories[c]+": " + county[set][categories[c]] + "</p>";
 				return http;
