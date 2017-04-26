@@ -434,7 +434,7 @@
                 }
 
                 if (category == c) {
-                    var t = (avg-min)/(max-min);
+                    var t = (Math.log(avg)-Math.log(min))/(Math.log(max)-Math.log(min));
                     var min_col = [50,50,100];
                     var max_col = [100,100,255];
                     var col = [
@@ -557,7 +557,7 @@
 					+nil_color[0]+","
 					+nil_color[1]+","
 					+nil_color[2]+")";
-			var t = (datasets[set][d.id][categories[category]] - min)/(max - min);
+			var t = (Math.log(datasets[set][d.id][categories[category]]) - Math.log(min))/(Math.log(max) - Math.log(min));
             if (t > 1)
                 t = 1.5;
             else if (t < 0)
