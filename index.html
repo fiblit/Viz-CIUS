@@ -306,7 +306,7 @@
 
 		var tip = d3.tip()
 			.attr('class', 'd3-tip')
-			.offset([-5, 0])
+			.offset([-320, -610])
 			.html(function(d) {return onCountyHover(d);});
 
 		var player = null;
@@ -426,9 +426,9 @@
                         "</tr>";
             for (var c = 0; c < categories.length; c++) {
                 var cat = categories[c];
-                var min = getSetMin();
+                var min = getSetMin(c);
                 var avg = Math.floor(nationals[set][categories[c]]);
-                var max = getSetMax();
+                var max = getSetMax(c);
                 if (min == Infinity || max == -Infinity) {
                     min = max = avg = "n\\a";
                 }
@@ -462,8 +462,8 @@
             }
 
             //range boxes
-			document.getElementById("MinBox").value = getSetMin();
-			document.getElementById("MaxBox").value = getSetMax();
+			document.getElementById("MinBox").value = getSetMin(category);
+			document.getElementById("MaxBox").value = getSetMax(category);
 		}
         function updateTimeCounters() {
             document.getElementById('resetminmax-this').value = "Reset for " + (set + 2006);
@@ -504,32 +504,32 @@
             }
             std_updateMap();
 		}
-		function getSetMin() {
+		function getSetMin(c) {
             var r;
-			if (undefined != nationals[set][categories[category]+"-set-min"])
-				r = nationals[set][categories[category]+"-set-min"];
+			if (undefined != nationals[set][categories[c]+"-set-min"])
+				r = nationals[set][categories[c]+"-set-min"];
 			else
-				r = nationals[set][categories[category]+"-min"];
+				r = nationals[set][categories[c]+"-min"];
             if (r == Infinity || r == -Infinity)
                 r = undefined;
             return r;
 		}
-		function getMin(){
-			return nationals[set][categories[category]+"-min"];
+		function getMin(c){
+			return nationals[set][categories[c]+"-min"];
 		}
 
-		function getSetMax() {
+		function getSetMax(c) {
             var r;
-			if (undefined != nationals[set][categories[category]+"-set-max"])
-				r = nationals[set][categories[category]+"-set-max"];
+			if (undefined != nationals[set][categories[c]+"-set-max"])
+				r = nationals[set][categories[c]+"-set-max"];
 			else
-				r = nationals[set][categories[category]+"-max"];
+				r = nationals[set][categories[c]+"-max"];
             if (r == Infinity || r == -Infinity)
                 r = undefined;
             return r;
 		}
-		function getMax(){
-			return nationals[set][categories[category]+"-max"];
+		function getMax(c){
+			return nationals[set][categories[c]+"-max"];
 		}
 
 		function play() {
@@ -550,8 +550,8 @@
 			var z_color = [50,100,100];
 			var min_color = [50,50,100];
 			var max_color = [100,100,255];
-			var min = getSetMin();
-			var max = getSetMax();
+			var min = getSetMin(category);
+			var max = getSetMax(category);
 			if (datasets[set][d.id] == null)
 				return "rgb("
 					+nil_color[0]+","
