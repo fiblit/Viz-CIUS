@@ -426,20 +426,39 @@
                         "</tr>";
             for (var c = 0; c < categories.length; c++) {
                 var cat = categories[c];
-                var min = nationals[set][categories[c]+"-min"];
+                var min = getSetMin();
                 var avg = Math.floor(nationals[set][categories[c]]);
-                var max = nationals[set][categories[c]+"-max"];
+                var max = getSetMax();
                 if (min == Infinity || max == -Infinity) {
                     min = max = avg = "n\\a";
                 }
 
-                table.innerHTML += ""+
-                "<tr>"+
-                    "<td>"+cat+"</td>"+
-                    "<td>"+min+"</td>"+
-                    "<td>"+avg+"</td>"+
-                    "<td>"+max+"</td>"+
-                "</tr>";
+                if (category == c) {
+                    var t = (avg-min)/(max-min);
+                    var min_col = [50,50,100];
+                    var max_col = [100,100,255];
+                    var col = [
+                        Math.floor((1-t)*min_col[0]+t*max_col[0]),
+                        Math.floor((1-t)*min_col[1]+t*max_col[1]),
+                        Math.floor((1-t)*min_col[2]+t*max_col[2])];
+                    avg = "<span style='color:red;'>"+avg+"</span>";
+                    table.innerHTML += ""+
+                    "<tr>"+
+                        "<td>"+cat+"</td>"+
+                        "<td>"+min+"</td>"+
+                        "<td style='background-color:rgb("+col[0]+","+col[1]+","+col[2]+");'>"+avg+"</td>"+
+                        "<td>"+max+"</td>"+
+                    "</tr>";
+                }
+                else {
+                    table.innerHTML += ""+
+                    "<tr>"+
+                        "<td>"+cat+"</td>"+
+                        "<td>"+min+"</td>"+
+                        "<td>"+avg+"</td>"+
+                        "<td>"+max+"</td>"+
+                    "</tr>";
+                }
             }
 
             //range boxes
